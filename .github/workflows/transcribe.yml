@@ -1,6 +1,12 @@
 name: Transcribe Audio to SRT
 
 on:
+  push:
+    branches:
+      - claude/youthful-franklin-0pqwny
+    paths:
+      - "audioPatrick.mp3"
+      - ".github/workflows/transcribe.yml"
   workflow_dispatch:
 
 jobs:
