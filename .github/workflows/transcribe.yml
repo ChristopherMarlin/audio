@@ -1,0 +1,68 @@
+name: Transcribe Audio to SRT
+
+on:
+  workflow_dispatch:
+
+jobs:
+  transcribe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y ffmpeg
+          pip install openai-whisper
+
+      - name: Transcribe audio
+        run: |
+          python3 - <<'EOF'
+          import whisper
+
+          model = whisper.load_model("base")
+          result = model.transcribe("audioPatrick.mp3", language="en", word_timestamps=True)
+
+          def format_time(seconds):
+              h = int(seconds // 3600)
+              m = int((seconds % 3600) // 60)
+              s = int(seconds % 60)
+              ms = int((seconds % 1) * 1000)
+              return f"{h:02}:{m:02}:{s:02},{ms:03}"
+
+          srt_lines = []
+          idx = 1
+
+          for segment in result["segments"]:
+              words = segment.get("words", [])
+              if not words:
+                  continue
+              for i in range(0, len(words), 4):
+                  chunk = words[i:i+4]
+                  start = chunk[0]["start"]
+                  end = chunk[-1]["end"]
+                  text = " ".join(w["word"].strip() for w in chunk)
+                  srt_lines.append(str(idx))
+                  srt_lines.append(f"{format_time(start)} --> {format_time(end)}")
+                  srt_lines.append(text)
+                  srt_lines.append("")
+                  idx += 1
+
+          with open("audioPatrick.srt", "w") as f:
+              f.write("\n".join(srt_lines))
+
+          print(f"Done: {idx-1} subtitle entries written.")
+          EOF
+
+      - name: Commit and push SRT
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add audioPatrick.srt
+          git commit -m "Add English subtitles SRT (4 words per line)"
+          git push origin HEAD
