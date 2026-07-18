@@ -1,8 +1,11 @@
 const express = require('express');
 const db = require('../db');
+const config = require('../config');
 const { requireAdmin } = require('../middleware/auth');
 const { isRangeAvailable, expirePendingHolds } = require('../lib/availability');
 const { isValidDateStr, cleanString } = require('../lib/validate');
+const { getStripe } = require('../lib/stripe');
+const { generateDepositToken } = require('../lib/deposit');
 
 const router = express.Router();
 router.use(requireAdmin);
@@ -73,6 +76,129 @@ router.delete('/bookings/:id', (req, res) => {
   res.json({ ok: true });
 });
 
+// ------------------------------------------------------- Security deposits
+// A deposit hold is placed near pickup (not at booking time) so its 7-30 day
+// authorization window actually covers the rental - see README for why.
+router.post('/bookings/:id/deposit/request', async (req, res) => {
+  const stripe = getStripe();
+  if (!stripe) return res.status(503).json({ error: 'Stripe is not configured.' });
+
+  const booking = db.prepare('SELECT * FROM bookings WHERE id = ?').get(req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  if (booking.status !== 'confirmed') {
+    return res.status(400).json({ error: 'Only confirmed bookings can have a deposit hold requested.' });
+  }
+  if (!['none', 'released', 'expired', 'failed'].includes(booking.deposit_status)) {
+    return res.status(409).json({ error: `A deposit is already ${booking.deposit_status} for this booking.` });
+  }
+
+  const car = db.prepare('SELECT deposit_cents FROM cars WHERE id = ?').get(booking.car_id);
+  const amountCents = Number.isInteger(req.body?.amount_cents) && req.body.amount_cents > 0
+    ? req.body.amount_cents
+    : car.deposit_cents;
+
+  if (!amountCents || amountCents <= 0) {
+    return res.status(400).json({ error: 'Set a deposit amount for this car (Fleet tab) or provide amount_cents.' });
+  }
+
+  let intent;
+  try {
+    intent = await stripe.paymentIntents.create({
+      amount: amountCents,
+      currency: booking.currency,
+      capture_method: 'manual',
+      payment_method_types: ['card'],
+      payment_method_options: { card: { request_extended_authorization: 'if_available' } },
+      metadata: { kind: 'deposit', booking_id: String(booking.id) },
+      description: `Marlin Rentals - refundable deposit for booking #${booking.id}`
+    });
+  } catch (err) {
+    console.error('Deposit PaymentIntent creation failed:', err);
+    return res.status(502).json({ error: 'Could not start the deposit hold with Stripe. Please try again.' });
+  }
+
+  const token = generateDepositToken();
+  db.prepare(
+    `UPDATE bookings SET deposit_amount_cents = ?, deposit_status = 'requested', deposit_payment_intent_id = ?,
+       deposit_captured_cents = 0, deposit_capture_before = NULL, deposit_token = ?, updated_at = datetime('now')
+     WHERE id = ?`
+  ).run(amountCents, intent.id, token, booking.id);
+
+  res.status(201).json({
+    amount_cents: amountCents,
+    deposit_link: `${config.publicBaseUrl}/deposit.html?token=${token}`
+  });
+});
+
+router.post('/bookings/:id/deposit/capture', async (req, res) => {
+  const stripe = getStripe();
+  if (!stripe) return res.status(503).json({ error: 'Stripe is not configured.' });
+
+  const booking = db.prepare('SELECT * FROM bookings WHERE id = ?').get(req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  if (booking.deposit_status !== 'authorized') {
+    return res.status(400).json({ error: 'No active deposit hold to capture on this booking.' });
+  }
+
+  const amountToCapture = Number.isInteger(req.body?.amount_cents) && req.body.amount_cents > 0
+    ? req.body.amount_cents
+    : booking.deposit_amount_cents;
+  if (amountToCapture > booking.deposit_amount_cents) {
+    return res.status(400).json({ error: `Cannot capture more than the held amount ($${(booking.deposit_amount_cents / 100).toFixed(2)}).` });
+  }
+
+  try {
+    const captured = await stripe.paymentIntents.capture(booking.deposit_payment_intent_id, {
+      amount_to_capture: amountToCapture
+    });
+    res.json({ ok: true, amount_captured_cents: captured.amount_received });
+  } catch (err) {
+    console.error('Deposit capture failed:', err);
+    res.status(502).json({ error: 'Stripe declined the capture request. Please try again.' });
+  }
+});
+
+router.post('/bookings/:id/deposit/release', async (req, res) => {
+  const stripe = getStripe();
+  if (!stripe) return res.status(503).json({ error: 'Stripe is not configured.' });
+
+  const booking = db.prepare('SELECT * FROM bookings WHERE id = ?').get(req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  if (!['requested', 'authorized'].includes(booking.deposit_status)) {
+    return res.status(400).json({ error: 'No pending deposit hold to release on this booking.' });
+  }
+
+  try {
+    await stripe.paymentIntents.cancel(booking.deposit_payment_intent_id);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Deposit release failed:', err);
+    res.status(502).json({ error: 'Stripe could not release the hold. Please try again.' });
+  }
+});
+
+router.post('/bookings/:id/deposit/refund', async (req, res) => {
+  const stripe = getStripe();
+  if (!stripe) return res.status(503).json({ error: 'Stripe is not configured.' });
+
+  const booking = db.prepare('SELECT * FROM bookings WHERE id = ?').get(req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  if (booking.deposit_status !== 'captured') {
+    return res.status(400).json({ error: 'No captured deposit to refund on this booking.' });
+  }
+
+  try {
+    await stripe.refunds.create({ payment_intent: booking.deposit_payment_intent_id });
+    db.prepare(
+      "UPDATE bookings SET deposit_status = 'released', deposit_captured_cents = 0, updated_at = datetime('now') WHERE id = ?"
+    ).run(booking.id);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Deposit refund failed:', err);
+    res.status(502).json({ error: 'Stripe could not process the refund. Please try again.' });
+  }
+});
+
 // ------------------------------------------------------------- Blocked dates
 router.get('/blocks', (req, res) => {
   const { car_id } = req.query;
@@ -124,17 +250,19 @@ router.post('/cars', (req, res) => {
   const image = cleanString(b.image || '/images/car-placeholder.svg', 300);
   const seats = parseInt(b.seats, 10);
   const price_per_day_cents = parseInt(b.price_per_day_cents, 10);
+  const deposit_cents = b.deposit_cents !== undefined ? parseInt(b.deposit_cents, 10) : 0;
 
   if (!slug || !name || !category || !transmission || !Number.isInteger(seats) || seats < 1 ||
-      !Number.isInteger(price_per_day_cents) || price_per_day_cents < 0) {
+      !Number.isInteger(price_per_day_cents) || price_per_day_cents < 0 ||
+      !Number.isInteger(deposit_cents) || deposit_cents < 0) {
     return res.status(400).json({ error: 'Missing or invalid car fields.' });
   }
 
   try {
     const info = db.prepare(
-      `INSERT INTO cars (slug, name, category, seats, transmission, price_per_day_cents, image, description)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run(slug, name, category, seats, transmission, price_per_day_cents, image, description);
+      `INSERT INTO cars (slug, name, category, seats, transmission, price_per_day_cents, deposit_cents, image, description)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(slug, name, category, seats, transmission, price_per_day_cents, deposit_cents, image, description);
     res.status(201).json(db.prepare('SELECT * FROM cars WHERE id = ?').get(info.lastInsertRowid));
   } catch (err) {
     if (String(err.message).includes('UNIQUE')) {
@@ -158,16 +286,18 @@ router.put('/cars/:id', (req, res) => {
     image: b.image !== undefined ? cleanString(b.image, 300) : existing.image,
     seats: b.seats !== undefined ? parseInt(b.seats, 10) : existing.seats,
     price_per_day_cents: b.price_per_day_cents !== undefined ? parseInt(b.price_per_day_cents, 10) : existing.price_per_day_cents,
+    deposit_cents: b.deposit_cents !== undefined ? parseInt(b.deposit_cents, 10) : existing.deposit_cents,
     active: b.active !== undefined ? (b.active ? 1 : 0) : existing.active
   };
 
-  if (!Number.isInteger(next.seats) || next.seats < 1 || !Number.isInteger(next.price_per_day_cents) || next.price_per_day_cents < 0) {
-    return res.status(400).json({ error: 'Invalid seats or price.' });
+  if (!Number.isInteger(next.seats) || next.seats < 1 || !Number.isInteger(next.price_per_day_cents) || next.price_per_day_cents < 0 ||
+      !Number.isInteger(next.deposit_cents) || next.deposit_cents < 0) {
+    return res.status(400).json({ error: 'Invalid seats, price, or deposit amount.' });
   }
 
   db.prepare(
     `UPDATE cars SET name=@name, category=@category, transmission=@transmission, description=@description,
-       image=@image, seats=@seats, price_per_day_cents=@price_per_day_cents, active=@active WHERE id=@id`
+       image=@image, seats=@seats, price_per_day_cents=@price_per_day_cents, deposit_cents=@deposit_cents, active=@active WHERE id=@id`
   ).run({ ...next, id });
 
   res.json(db.prepare('SELECT * FROM cars WHERE id = ?').get(id));

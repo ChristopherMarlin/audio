@@ -11,6 +11,7 @@ const authRoutes = require('./routes/auth');
 const carRoutes = require('./routes/cars');
 const bookingRoutes = require('./routes/bookings');
 const adminRoutes = require('./routes/admin');
+const depositRoutes = require('./routes/deposit');
 const stripeWebhookRoutes = require('./routes/stripeWebhook');
 const { generalApiLimiter } = require('./middleware/rateLimit');
 
@@ -35,9 +36,11 @@ app.use(
   })
 );
 
-// Stripe webhook needs the raw request body for signature verification, so
-// it must be mounted before the global express.json() body parser below.
-app.use('/api/stripe/webhook', stripeWebhookRoutes);
+// Stripe webhook needs the raw request body (as a Buffer) for signature
+// verification, so it gets its own express.raw() here instead of the global
+// express.json() body parser below, which would otherwise consume the body
+// as parsed JSON and break constructEvent's signature check.
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhookRoutes);
 
 app.use(express.json({ limit: '100kb' }));
 
@@ -62,6 +65,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/cars', carRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/deposit', depositRoutes);
 
 app.get('/api/config', (req, res) => {
   res.json({ stripePublishableKey: config.stripePublishableKey, currency: config.currency });

@@ -99,7 +99,7 @@ router.post('/', bookingLimiter, async (req, res) => {
     const intent = await stripe.paymentIntents.create({
       amount: total_price_cents,
       currency: config.currency,
-      metadata: { booking_id: String(bookingId), car_slug },
+      metadata: { kind: 'rental', booking_id: String(bookingId), car_slug },
       receipt_email: customer_email,
       description: `Marlin Rentals - ${car.name} (${start_date} to ${end_date})`
     });

@@ -10,6 +10,7 @@ const cars = [
     seats: 4,
     transmission: 'Automatic',
     price_per_day_cents: 4500,
+    deposit_cents: 20000,
     image: '/images/car-picanto.svg',
     description: 'Compact, fuel-efficient, and easy to park - perfect for zipping around Willemstad and the beaches.'
   },
@@ -20,6 +21,7 @@ const cars = [
     seats: 7,
     transmission: 'Automatic',
     price_per_day_cents: 6500,
+    deposit_cents: 30000,
     image: '/images/car-sorento.svg',
     description: 'Spacious 7-seat SUV with plenty of trunk space - great for families and island road trips.'
   },
@@ -30,14 +32,15 @@ const cars = [
     seats: 5,
     transmission: 'Automatic',
     price_per_day_cents: 5500,
+    deposit_cents: 25000,
     image: '/images/car-trax.svg',
     description: 'A comfortable, reliable crossover with a smooth ride - a great all-rounder for exploring Curacao.'
   }
 ];
 
 const insert = db.prepare(`
-  INSERT OR IGNORE INTO cars (slug, name, category, seats, transmission, price_per_day_cents, image, description)
-  VALUES (@slug, @name, @category, @seats, @transmission, @price_per_day_cents, @image, @description)
+  INSERT OR IGNORE INTO cars (slug, name, category, seats, transmission, price_per_day_cents, deposit_cents, image, description)
+  VALUES (@slug, @name, @category, @seats, @transmission, @price_per_day_cents, @deposit_cents, @image, @description)
 `);
 
 const insertMany = db.transaction((rows) => {

@@ -54,8 +54,8 @@
     </div>
     <div class="dash-table-wrap">
       <table class="dash-table">
-        <thead><tr><th>ID</th><th>Car</th><th>Customer</th><th>Dates</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
-        <tbody id="bookings-body"><tr><td colspan="7">Loading…</td></tr></tbody>
+        <thead><tr><th>ID</th><th>Car</th><th>Customer</th><th>Dates</th><th>Total</th><th>Status</th><th>Deposit</th><th>Actions</th></tr></thead>
+        <tbody id="bookings-body"><tr><td colspan="8">Loading…</td></tr></tbody>
       </table>
     </div>
   </section>
@@ -70,6 +70,7 @@
         <div><label>Seats</label><input name="seats" type="number" min="1" max="15" required></div>
         <div><label>Transmission</label><input name="transmission" required placeholder="Automatic / Manual"></div>
         <div><label>Price per day (USD)</label><input name="price" type="number" min="0" step="0.01" required></div>
+        <div><label>Security deposit (USD)</label><input name="deposit" type="number" min="0" step="0.01" placeholder="e.g. 250"></div>
         <div class="full"><label>Description</label><textarea name="description" rows="2"></textarea></div>
         <div class="full"><button class="btn btn-primary" type="submit">Add Car</button></div>
       </form>

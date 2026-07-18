@@ -66,15 +66,28 @@ Stripe confirms payment asynchronously via a webhook, which is what flips a book
   stripe listen --forward-to localhost:3000/api/stripe/webhook
   ```
   It will print a `whsec_...` value — put that in `STRIPE_WEBHOOK_SECRET`.
-- **Production**: in the Stripe Dashboard, add a webhook endpoint pointing at `https://yourdomain.com/api/stripe/webhook`, subscribed to `payment_intent.succeeded`, `payment_intent.payment_failed`, and `payment_intent.canceled`. Copy its signing secret into `STRIPE_WEBHOOK_SECRET`.
+- **Production**: in the Stripe Dashboard, add a webhook endpoint pointing at `https://yourdomain.com/api/stripe/webhook`, subscribed to `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`, and `payment_intent.amount_capturable_updated` (the last one is only needed for security deposit holds, see below). Copy its signing secret into `STRIPE_WEBHOOK_SECRET`.
 
 Without Stripe keys configured, the booking form will clearly tell customers online payment isn't set up yet rather than silently failing or double-charging — the site remains fully usable for everything except taking payment.
+
+## Security deposits
+
+Each car can have a refundable security deposit amount (set per-car in the dashboard's Fleet tab). Unlike the rental payment, a deposit is **not** collected at booking time — it's requested closer to pickup, via a separate flow:
+
+1. On a confirmed booking, the dashboard's **Deposit** action creates a Stripe PaymentIntent with `capture_method: 'manual'` (an authorization hold, not a charge) and gives you a one-time link to send the customer.
+2. The customer opens the link (`/deposit.html?token=...`) and enters their card themselves — this places the hold without charging them.
+3. At car return: **Release** the hold if the car is fine (customer is never charged), or **Capture** some or all of it if there's damage.
+4. If nobody resolves it in time, Stripe releases the hold automatically and the dashboard reflects that (`expired`).
+
+**Why not at booking time?** Card authorization holds only last 7 days by default (up to 30 days for vehicle rentals specifically, if you request `extended_authorization` — already wired up in `server/routes/admin.js`, though it's an IC+ pricing feature you may need to ask Stripe support to enable). A hold placed when someone books weeks or months in advance would expire long before they actually pick up the car, so it has to be requested near pickup instead.
+
+This required a second, separate PaymentIntent from the rental charge — deposit and rental webhook events are told apart via `metadata.kind` (`'rental'` vs `'deposit'`) in `server/routes/stripeWebhook.js`.
 
 ## Customizing content
 
 Everything shipped is real, working code with **placeholder business content** you should replace:
 
-- **Fleet, prices, descriptions, photos** — easiest via the admin dashboard's Fleet tab once running, or edit `server/scripts/seed.js` before the first `npm run seed`. Car photos are simple illustrated SVGs at `public/images/car-*.svg` — swap in real photos (any format) and update the `image` field.
+- **Fleet, prices, descriptions, deposit amounts, photos** — easiest via the admin dashboard's Fleet tab once running, or edit `server/scripts/seed.js` before the first `npm run seed`. Car photos are simple illustrated SVGs at `public/images/car-*.svg` — swap in real photos (any format) and update the `image` field.
 - **Contact info, address, hero text, colors** — `public/contact.html`, `public/index.html`, and the footer blocks across all public pages. Brand colors live as CSS variables at the top of `public/css/style.css`.
 - **Airport drop-off fee** — `server/config.js` (`airportFeeCents`), currently a $15 placeholder.
 - **Logo** — `public/images/logo.svg`.
