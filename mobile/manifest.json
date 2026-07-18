@@ -1,0 +1,14 @@
+{
+  "name": "Marlin Rentals - Availability",
+  "short_name": "Marlin Rentals",
+  "description": "Check which Marlin Rentals cars are available in Curaçao and book instantly.",
+  "start_url": "/mobile/",
+  "scope": "/mobile/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fdf6e9",
+  "theme_color": "#046e83",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220">
+  <rect width="400" height="220" fill="#eaf7f8"/>
+  <ellipse cx="200" cy="182" rx="165" ry="10" fill="#cfe9ea"/>
+  <path d="M40 152 Q40 96 95 92 L120 62 Q140 50 175 50 L255 50 Q285 50 302 72 L320 92 Q365 96 365 138 L365 152 Z" fill="#264653"/>
+  <path d="M132 90 L152 66 Q165 58 185 58 L250 58 Q268 58 280 74 L292 90 Z" fill="#bfe3f0"/>
+  <path d="M200 58 L200 90" stroke="#264653" stroke-width="4"/>
+  <circle cx="118" cy="156" r="28" fill="#1a1a1a"/>
+  <circle cx="118" cy="156" r="12" fill="#c7c7c7"/>
+  <circle cx="302" cy="156" r="28" fill="#1a1a1a"/>
+  <circle cx="302" cy="156" r="12" fill="#c7c7c7"/>
+  <rect x="40" y="142" width="325" height="10" fill="#1b3540"/>
+  <text x="200" y="205" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#046e83">Kia Sorento</text>
+</svg>

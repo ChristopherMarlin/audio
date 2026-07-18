@@ -1,0 +1,65 @@
+body { background: var(--sand); padding-bottom: 40px; }
+
+.m-header {
+  background: var(--teal-900);
+  color: var(--white);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.m-header img { height: 28px; filter: brightness(0) invert(1); }
+.m-header span { font-weight: 700; }
+
+.m-container { padding: 16px; max-width: 480px; margin: 0 auto; }
+
+.m-car-card {
+  background: var(--white);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.m-car-card img { width: 100%; }
+.m-car-card .body { padding: 14px 16px; }
+.m-car-card h3 { margin: 0 0 4px; color: var(--teal-900); }
+.m-car-card .price { color: var(--teal-700); font-weight: 800; }
+.m-car-card .toggle-btn {
+  width: 100%;
+  margin-top: 10px;
+  background: var(--teal-100);
+  color: var(--teal-700);
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.m-car-card .calendar-wrap { display: none; padding: 0 16px 16px; }
+.m-car-card.expanded .calendar-wrap { display: block; }
+.m-car-card .book-btn { margin-top: 10px; }
+
+.m-install-banner {
+  background: var(--sun);
+  color: var(--teal-900);
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.m-install-banner button {
+  background: var(--teal-900);
+  color: var(--white);
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+}

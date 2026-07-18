@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staff Login — Marlin Rentals</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/dashboard/css/dashboard.css">
+</head>
+<body class="login-body">
+  <div class="login-card">
+    <img src="/images/logo.svg" alt="Marlin Rentals" style="height:44px;margin-bottom:20px;">
+    <h1 style="font-size:1.4rem;color:var(--teal-900);margin-bottom:6px;">Staff Dashboard</h1>
+    <p style="color:var(--muted);margin-bottom:20px;">Sign in to manage bookings and the fleet.</p>
+    <form id="login-form">
+      <label for="username">Username</label>
+      <input id="username" required autocomplete="username">
+      <div style="height:14px"></div>
+      <label for="password">Password</label>
+      <input id="password" type="password" required autocomplete="current-password">
+      <div id="login-alert"></div>
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:18px;">Sign In</button>
+    </form>
+    <p style="margin-top:18px;font-size:0.85rem;"><a href="/">&larr; Back to main site</a></p>
+  </div>
+
+<script src="/js/api.js"></script>
+<script src="/dashboard/js/login.js"></script>
+</body>
+</html>

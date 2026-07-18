@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Marlin Rentals — Availability</title>
+<meta name="theme-color" content="#046e83">
+<link rel="manifest" href="/mobile/manifest.json">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/mobile/css/mobile.css">
+</head>
+<body>
+
+<header class="m-header">
+  <img src="/images/logo.svg" alt="">
+  <span>Marlin Rentals — Availability</span>
+</header>
+
+<div class="m-container">
+  <div id="install-banner" class="m-install-banner" style="display:none;">
+    <span>Add this app to your home screen for quick access.</span>
+    <button id="install-btn">Install</button>
+  </div>
+
+  <p style="color:var(--muted);font-size:0.9rem;">Tap a car to see which dates are open. Tap free days to pick a range, then book instantly.</p>
+
+  <div id="car-list"><p style="text-align:center;color:var(--muted)">Loading fleet…</p></div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/calendar.js"></script>
+<script src="/mobile/js/mobile.js"></script>
+</body>
+</html>

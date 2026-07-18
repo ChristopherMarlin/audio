@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — Marlin Rentals</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <a href="/" class="nav__logo"><img src="/images/logo.svg" alt="Marlin Rentals"></a>
+    <ul class="nav__links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/fleet.html">Our Fleet</a></li>
+      <li><a href="/book.html">Book Now</a></li>
+      <li><a href="/contact.html">Contact</a></li>
+      <li><a href="/check-booking.html">My Booking</a></li>
+    </ul>
+    <a href="/book.html" class="nav__cta">Book Now</a>
+    <button class="nav__toggle" aria-label="Menu">☰</button>
+  </nav>
+</header>
+
+<section class="container" style="padding-top:48px;">
+  <h1 class="section-title">Get in Touch</h1>
+  <p class="section-sub">Questions about a booking, airport drop-off, or a longer rental? We're happy to help — real people, real answers.</p>
+
+  <div class="grid" style="grid-template-columns: 1fr 1fr;">
+    <div class="card"><div class="card__body">
+      <h3>Contact details</h3>
+      <p>📍 Curaçao</p>
+      <p>✉️ <a href="mailto:info@marlinrentals.example">info@marlinrentals.example</a></p>
+      <p>📞 <a href="tel:+59990000000">+5999 000 0000</a></p>
+      <p style="color:var(--muted)">Replace these with your real contact details in <code>public/contact.html</code>.</p>
+    </div></div>
+
+    <div class="card"><div class="card__body">
+      <h3>Airport drop-off</h3>
+      <p>Flying into Hato International Airport (CUR)? Select "Airport drop-off" when booking and we'll have your car ready and waiting, or bring it right to arrivals.</p>
+      <a href="/book.html" class="btn btn-primary btn-block">Book with Airport Drop-off</a>
+    </div></div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom">&copy; <span id="year"></span> Marlin Rentals. All rights reserved.</div>
+  </div>
+</footer>
+
+<script src="/js/nav.js"></script>
+<script src="/js/footer-year.js"></script>
+</body>
+</html>
