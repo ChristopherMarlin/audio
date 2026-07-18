@@ -19,7 +19,7 @@ const cars = [
     category: 'SUV',
     seats: 7,
     transmission: 'Automatic',
-    price_per_day_cents: 8500,
+    price_per_day_cents: 6500,
     image: '/images/car-sorento.svg',
     description: 'Spacious 7-seat SUV with plenty of trunk space - great for families and island road trips.'
   },
@@ -29,7 +29,7 @@ const cars = [
     category: 'Compact SUV',
     seats: 5,
     transmission: 'Automatic',
-    price_per_day_cents: 6500,
+    price_per_day_cents: 5500,
     image: '/images/car-trax.svg',
     description: 'A comfortable, reliable crossover with a smooth ride - a great all-rounder for exploring Curacao.'
   }
