@@ -6,6 +6,7 @@ const { isRangeAvailable, expirePendingHolds } = require('../lib/availability');
 const { isValidDateStr, cleanString } = require('../lib/validate');
 const { getStripe } = require('../lib/stripe');
 const { generateDepositToken } = require('../lib/deposit');
+const { nightsBetween } = require('../lib/dates');
 
 const router = express.Router();
 router.use(requireAdmin);
@@ -79,6 +80,9 @@ router.delete('/bookings/:id', (req, res) => {
 // ------------------------------------------------------- Security deposits
 // A deposit hold is placed near pickup (not at booking time) so its 7-30 day
 // authorization window actually covers the rental - see README for why.
+// Rentals longer than depositHoldMaxNights can't be covered by any hold
+// (even "extended" holds cap at 30 days), so those are charged upfront
+// instead and refunded (fully or partially) at return.
 router.post('/bookings/:id/deposit/request', async (req, res) => {
   const stripe = getStripe();
   if (!stripe) return res.status(503).json({ error: 'Stripe is not configured.' });
@@ -101,14 +105,19 @@ router.post('/bookings/:id/deposit/request', async (req, res) => {
     return res.status(400).json({ error: 'Set a deposit amount for this car (Fleet tab) or provide amount_cents.' });
   }
 
+  const nights = nightsBetween(booking.start_date, booking.end_date);
+  const captureMethod = nights > config.depositHoldMaxNights ? 'automatic' : 'manual';
+
   let intent;
   try {
     intent = await stripe.paymentIntents.create({
       amount: amountCents,
       currency: booking.currency,
-      capture_method: 'manual',
+      capture_method: captureMethod,
       payment_method_types: ['card'],
-      payment_method_options: { card: { request_extended_authorization: 'if_available' } },
+      payment_method_options: captureMethod === 'manual'
+        ? { card: { request_extended_authorization: 'if_available' } }
+        : undefined,
       metadata: { kind: 'deposit', booking_id: String(booking.id) },
       description: `Marlin Rentals - refundable deposit for booking #${booking.id}`
     });
@@ -120,12 +129,14 @@ router.post('/bookings/:id/deposit/request', async (req, res) => {
   const token = generateDepositToken();
   db.prepare(
     `UPDATE bookings SET deposit_amount_cents = ?, deposit_status = 'requested', deposit_payment_intent_id = ?,
-       deposit_captured_cents = 0, deposit_capture_before = NULL, deposit_token = ?, updated_at = datetime('now')
+       deposit_captured_cents = 0, deposit_capture_before = NULL, deposit_token = ?, deposit_capture_method = ?,
+       updated_at = datetime('now')
      WHERE id = ?`
-  ).run(amountCents, intent.id, token, booking.id);
+  ).run(amountCents, intent.id, token, captureMethod, booking.id);
 
   res.status(201).json({
     amount_cents: amountCents,
+    capture_method: captureMethod,
     deposit_link: `${config.publicBaseUrl}/deposit.html?token=${token}`
   });
 });
@@ -187,12 +198,26 @@ router.post('/bookings/:id/deposit/refund', async (req, res) => {
     return res.status(400).json({ error: 'No captured deposit to refund on this booking.' });
   }
 
+  const amountToRefund = Number.isInteger(req.body?.amount_cents) && req.body.amount_cents > 0
+    ? req.body.amount_cents
+    : booking.deposit_captured_cents;
+  if (amountToRefund > booking.deposit_captured_cents) {
+    return res.status(400).json({ error: `Cannot refund more than the captured amount ($${(booking.deposit_captured_cents / 100).toFixed(2)}).` });
+  }
+
   try {
-    await stripe.refunds.create({ payment_intent: booking.deposit_payment_intent_id });
-    db.prepare(
-      "UPDATE bookings SET deposit_status = 'released', deposit_captured_cents = 0, updated_at = datetime('now') WHERE id = ?"
-    ).run(booking.id);
-    res.json({ ok: true });
+    await stripe.refunds.create({ payment_intent: booking.deposit_payment_intent_id, amount: amountToRefund });
+    const remaining = booking.deposit_captured_cents - amountToRefund;
+    if (remaining <= 0) {
+      db.prepare(
+        "UPDATE bookings SET deposit_status = 'released', deposit_captured_cents = 0, updated_at = datetime('now') WHERE id = ?"
+      ).run(booking.id);
+    } else {
+      db.prepare(
+        "UPDATE bookings SET deposit_captured_cents = ?, updated_at = datetime('now') WHERE id = ?"
+      ).run(remaining, booking.id);
+    }
+    res.json({ ok: true, refunded_cents: amountToRefund });
   } catch (err) {
     console.error('Deposit refund failed:', err);
     res.status(502).json({ error: 'Stripe could not process the refund. Please try again.' });

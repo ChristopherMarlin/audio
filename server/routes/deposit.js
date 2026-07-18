@@ -30,6 +30,7 @@ router.get('/:token', bookingLimiter, async (req, res) => {
       car_name: booking.car_name,
       amount_cents: booking.deposit_amount_cents,
       currency: booking.currency,
+      capture_method: booking.deposit_capture_method,
       client_secret: intent.client_secret
     });
   } catch (err) {

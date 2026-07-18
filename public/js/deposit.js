@@ -40,15 +40,24 @@
     return;
   }
 
+  const isHold = data.capture_method !== 'automatic';
+  const introText = isHold
+    ? `A refundable security deposit of <strong>${money(data.amount_cents)}</strong> for your <strong>${data.car_name}</strong> rental will be <strong>held</strong> on your card — not charged.`
+    : `Because this is a longer rental, a refundable security deposit of <strong>${money(data.amount_cents)}</strong> for your <strong>${data.car_name}</strong> rental will be <strong>charged now</strong> and refunded in full after your rental if the car is returned undamaged.`;
+  const noteText = isHold
+    ? 'We only charge this if the car comes back damaged. Otherwise the hold is released automatically after your rental.'
+    : 'This will appear as a real charge on your card statement. It is refunded (in full, or partially if there is damage) once the car is returned.';
+  const buttonText = isHold ? `Authorize ${money(data.amount_cents)} Hold` : `Pay ${money(data.amount_cents)} Deposit`;
+
   content.innerHTML = `
     <div class="card"><div class="card__body">
-      <p>A refundable security deposit of <strong>${money(data.amount_cents)}</strong> for your <strong>${data.car_name}</strong> rental will be <strong>held</strong> on your card — not charged.</p>
-      <p style="color:var(--muted);font-size:0.9rem;">We only charge this if the car comes back damaged. Otherwise the hold is released automatically after your rental.</p>
+      <p>${introText}</p>
+      <p style="color:var(--muted);font-size:0.9rem;">${noteText}</p>
       <form id="deposit-form">
         <label>Card details</label>
         <div id="stripe-card-element"></div>
         <div id="deposit-alert"></div>
-        <button type="submit" id="deposit-submit" class="btn btn-primary btn-block" style="margin-top:16px;">Authorize ${money(data.amount_cents)} Hold</button>
+        <button type="submit" id="deposit-submit" class="btn btn-primary btn-block" style="margin-top:16px;">${buttonText}</button>
       </form>
     </div></div>`;
 
@@ -78,14 +87,18 @@
     if (result.error) {
       alertBox.innerHTML = `<div class="alert alert-error">${result.error.message}</div>`;
       submitBtn.disabled = false;
-      submitBtn.textContent = `Authorize ${money(data.amount_cents)} Hold`;
+      submitBtn.textContent = buttonText;
       return;
     }
 
-    content.innerHTML = `
-      <div class="card"><div class="card__body">
-        <h3 style="color:var(--teal-700)">Hold placed successfully</h3>
-        <p>${money(data.amount_cents)} is now held on your card for your ${data.car_name} rental. It will be released automatically if the car is returned undamaged.</p>
-      </div></div>`;
+    content.innerHTML = isHold
+      ? `<div class="card"><div class="card__body">
+          <h3 style="color:var(--teal-700)">Hold placed successfully</h3>
+          <p>${money(data.amount_cents)} is now held on your card for your ${data.car_name} rental. It will be released automatically if the car is returned undamaged.</p>
+        </div></div>`
+      : `<div class="card"><div class="card__body">
+          <h3 style="color:var(--teal-700)">Deposit received</h3>
+          <p>${money(data.amount_cents)} has been charged for your ${data.car_name} rental deposit. It will be refunded after your rental if the car is returned undamaged.</p>
+        </div></div>`;
   });
 })();

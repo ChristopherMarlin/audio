@@ -6,6 +6,7 @@ const STATUS_LABEL = {
 };
 
 let carsCache = [];
+let appConfig = null;
 
 function money(cents) { return `$${(cents / 100).toFixed(2)}`; }
 
@@ -60,6 +61,12 @@ async function init() {
     await api.post('/api/auth/logout', {});
     location.href = '/dashboard/login.html';
   });
+
+  try {
+    appConfig = await api.get('/api/config');
+  } catch (e) {
+    appConfig = null;
+  }
 
   document.querySelectorAll('.dash-tab').forEach((tab) => {
     tab.addEventListener('click', () => switchTab(tab.dataset.tab));
@@ -197,14 +204,23 @@ function openEditBookingModal(b) {
 }
 
 // ------------------------------------------------------------------ Deposits
+function nightsBetween(start, end) {
+  return Math.round((new Date(end + 'T00:00:00Z') - new Date(start + 'T00:00:00Z')) / 86400000);
+}
+
 function openDepositModal(b) {
   const car = carsCache.find((c) => c.id === b.car_id);
   const defaultDeposit = car ? (car.deposit_cents / 100).toFixed(2) : '';
+  const nights = nightsBetween(b.start_date, b.end_date);
+  const isLongRental = appConfig && nights > appConfig.depositHoldMaxNights;
 
   let body;
   if (['none', 'released', 'expired', 'failed'].includes(b.deposit_status)) {
+    const note = isLongRental
+      ? `This is a ${nights}-night rental, longer than a card hold can cover (max ~30 days) - the deposit will be <strong>charged upfront</strong> and refunded at return instead of just held.`
+      : 'Best requested near pickup, not at booking time - the hold typically only lasts 7-30 days.';
     body = `
-      <p style="color:var(--muted);font-size:0.9rem;">Best requested near pickup, not at booking time - the hold typically only lasts 7-30 days.</p>
+      <p style="color:var(--muted);font-size:0.9rem;">${note}</p>
       <form id="deposit-action-form">
         <label>Deposit amount (USD)</label>
         <input name="amount" type="number" min="0" step="0.01" value="${defaultDeposit}" required>
@@ -235,7 +251,11 @@ function openDepositModal(b) {
     body = `
       <p><strong>${money(b.deposit_captured_cents)}</strong> was captured from this deposit.</p>
       <div id="deposit-modal-alert"></div>
-      <button class="btn btn-danger btn-block" id="deposit-refund-btn">Refund Captured Deposit</button>`;
+      <form id="deposit-refund-form">
+        <label>Amount to refund (USD)</label>
+        <input name="amount" type="number" min="0" step="0.01" max="${(b.deposit_captured_cents / 100).toFixed(2)}" value="${(b.deposit_captured_cents / 100).toFixed(2)}" required>
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top:10px;">Refund</button>
+      </form>`;
   }
 
   showModal(`
@@ -316,12 +336,14 @@ function openDepositModal(b) {
     });
   }
 
-  const refundBtn = document.getElementById('deposit-refund-btn');
-  if (refundBtn) {
-    refundBtn.addEventListener('click', async () => {
-      if (!confirm('Refund the full captured deposit back to the customer?')) return;
+  const refundForm = document.getElementById('deposit-refund-form');
+  if (refundForm) {
+    refundForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!confirm('Refund this amount back to the customer?')) return;
       try {
-        await api.post(`/api/admin/bookings/${b.id}/deposit/refund`, {});
+        const amount = Math.round(parseFloat(new FormData(refundForm).get('amount')) * 100);
+        await api.post(`/api/admin/bookings/${b.id}/deposit/refund`, { amount_cents: amount });
         closeModal();
         await loadBookings();
       } catch (err) {

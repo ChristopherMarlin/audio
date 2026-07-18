@@ -59,6 +59,7 @@ db.exec(`
     deposit_captured_cents INTEGER NOT NULL DEFAULT 0,
     deposit_capture_before TEXT,
     deposit_token TEXT,
+    deposit_capture_method TEXT NOT NULL DEFAULT 'manual',
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
@@ -92,6 +93,7 @@ addColumnIfMissing('bookings', 'deposit_amount_cents', "INTEGER NOT NULL DEFAULT
 addColumnIfMissing('bookings', 'deposit_status', "TEXT NOT NULL DEFAULT 'none'");
 addColumnIfMissing('bookings', 'deposit_payment_intent_id', "TEXT");
 addColumnIfMissing('bookings', 'deposit_captured_cents', "INTEGER NOT NULL DEFAULT 0");
+addColumnIfMissing('bookings', 'deposit_capture_method', "TEXT NOT NULL DEFAULT 'manual'");
 addColumnIfMissing('bookings', 'deposit_capture_before', "TEXT");
 addColumnIfMissing('bookings', 'deposit_token', "TEXT");
 

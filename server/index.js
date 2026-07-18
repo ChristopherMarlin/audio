@@ -68,7 +68,11 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/deposit', depositRoutes);
 
 app.get('/api/config', (req, res) => {
-  res.json({ stripePublishableKey: config.stripePublishableKey, currency: config.currency });
+  res.json({
+    stripePublishableKey: config.stripePublishableKey,
+    currency: config.currency,
+    depositHoldMaxNights: config.depositHoldMaxNights
+  });
 });
 
 app.use(express.static(path.join(__dirname, '..', 'public')));

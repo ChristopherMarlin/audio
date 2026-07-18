@@ -81,6 +81,8 @@ Each car can have a refundable security deposit amount (set per-car in the dashb
 
 **Why not at booking time?** Card authorization holds only last 7 days by default (up to 30 days for vehicle rentals specifically, if you request `extended_authorization` — already wired up in `server/routes/admin.js`, though it's an IC+ pricing feature you may need to ask Stripe support to enable). A hold placed when someone books weeks or months in advance would expire long before they actually pick up the car, so it has to be requested near pickup instead.
 
+**Rentals longer than 28 nights** (`config.depositHoldMaxNights` in `server/config.js`) can't be covered by any hold at all — even the extended 30-day window would expire before the customer returns the car. For these, requesting a deposit charges it immediately instead of placing a hold (`capture_method: 'automatic'` rather than `'manual'`), and the dashboard's refund action supports partial refunds so you can return most of it while keeping some back for damage. The customer-facing page (`/deposit.html`) shows accurate "charged now" vs. "held, not charged" copy depending on which mode applies. Both dashboard and customer copy read the 28-night threshold from `GET /api/config`, so it stays in sync with the server if you ever change it.
+
 This required a second, separate PaymentIntent from the rental charge — deposit and rental webhook events are told apart via `metadata.kind` (`'rental'` vs `'deposit'`) in `server/routes/stripeWebhook.js`.
 
 ## Customizing content
