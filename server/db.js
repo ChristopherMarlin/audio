@@ -31,6 +31,7 @@ db.exec(`
     seats INTEGER NOT NULL,
     transmission TEXT NOT NULL,
     price_per_day_cents INTEGER NOT NULL,
+    deposit_cents INTEGER NOT NULL DEFAULT 0,
     image TEXT NOT NULL,
     description TEXT NOT NULL DEFAULT '',
     active INTEGER NOT NULL DEFAULT 1,
@@ -52,6 +53,13 @@ db.exec(`
     notes TEXT NOT NULL DEFAULT '',
     stripe_payment_intent_id TEXT,
     hold_expires_at TEXT,
+    deposit_amount_cents INTEGER NOT NULL DEFAULT 0,
+    deposit_status TEXT NOT NULL DEFAULT 'none',
+    deposit_payment_intent_id TEXT,
+    deposit_captured_cents INTEGER NOT NULL DEFAULT 0,
+    deposit_capture_before TEXT,
+    deposit_token TEXT,
+    deposit_capture_method TEXT NOT NULL DEFAULT 'manual',
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
@@ -69,5 +77,26 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_bookings_dates ON bookings(car_id, start_date, end_date);
   CREATE INDEX IF NOT EXISTS idx_blocked_car ON blocked_dates(car_id, start_date, end_date);
 `);
+
+// Migration for databases created before deposit support was added - CREATE
+// TABLE IF NOT EXISTS above only applies to brand new databases, so existing
+// ones need these columns added explicitly. Safe to run every startup.
+function addColumnIfMissing(table, column, definition) {
+  const existing = db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name);
+  if (!existing.includes(column)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+}
+
+addColumnIfMissing('cars', 'deposit_cents', "INTEGER NOT NULL DEFAULT 0");
+addColumnIfMissing('bookings', 'deposit_amount_cents', "INTEGER NOT NULL DEFAULT 0");
+addColumnIfMissing('bookings', 'deposit_status', "TEXT NOT NULL DEFAULT 'none'");
+addColumnIfMissing('bookings', 'deposit_payment_intent_id', "TEXT");
+addColumnIfMissing('bookings', 'deposit_captured_cents', "INTEGER NOT NULL DEFAULT 0");
+addColumnIfMissing('bookings', 'deposit_capture_method', "TEXT NOT NULL DEFAULT 'manual'");
+addColumnIfMissing('bookings', 'deposit_capture_before', "TEXT");
+addColumnIfMissing('bookings', 'deposit_token', "TEXT");
+
+db.exec(`CREATE INDEX IF NOT EXISTS idx_bookings_deposit_token ON bookings(deposit_token);`);
 
 module.exports = db;

@@ -1,17 +1,18 @@
 :root {
-  --teal-900: #033b47;
-  --teal-700: #046e83;
-  --teal-500: #0ea5b8;
-  --teal-100: #eaf7f8;
-  --sun: #ffc93c;
-  --sun-dark: #d99400;
-  --coral: #e63946;
-  --sand: #fdf6e9;
+  --teal-900: #04364a;
+  --teal-700: #0089b3;
+  --teal-500: #00c2d1;
+  --teal-100: #d7f7f7;
+  --sun: #ffd60a;
+  --sun-dark: #ffb700;
+  --coral: #ff5a5f;
+  --pink: #ff2e63;
+  --sand: #fffaf0;
   --ink: #1f2a30;
   --muted: #5b6b70;
   --white: #ffffff;
   --radius: 14px;
-  --shadow: 0 8px 24px rgba(3, 59, 71, 0.12);
+  --shadow: 0 8px 24px rgba(4, 54, 74, 0.14);
   --max-width: 1120px;
 }
 
@@ -119,7 +120,7 @@ a { color: inherit; }
 .hero__overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(3,59,71,0.35), rgba(3,59,71,0.75));
+  background: linear-gradient(160deg, rgba(0,137,179,0.35), rgba(4,54,74,0.55) 55%, rgba(255,46,99,0.45));
   z-index: 1;
 }
 .hero__content {
@@ -225,7 +226,7 @@ section { padding: 64px 0; }
 .feature p { color: var(--muted); margin: 0; }
 
 .band {
-  background: var(--teal-700);
+  background: linear-gradient(120deg, var(--teal-700), var(--teal-500) 60%, var(--pink));
   color: var(--white);
 }
 .band .section-title, .band .section-sub { color: var(--white); }

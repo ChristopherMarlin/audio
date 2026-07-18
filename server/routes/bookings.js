@@ -4,14 +4,10 @@ const config = require('../config');
 const { getStripe } = require('../lib/stripe');
 const { isRangeAvailable, holdExpiryTimestamp, expirePendingHolds } = require('../lib/availability');
 const { isValidDateStr, todayStr, isValidEmail, isValidPhone, cleanString } = require('../lib/validate');
+const { nightsBetween } = require('../lib/dates');
 const { bookingLimiter } = require('../middleware/rateLimit');
 
 const router = express.Router();
-
-function nightsBetween(start, end) {
-  const ms = new Date(end + 'T00:00:00Z') - new Date(start + 'T00:00:00Z');
-  return Math.round(ms / (24 * 60 * 60 * 1000));
-}
 
 router.post('/', bookingLimiter, async (req, res) => {
   const body = req.body || {};
@@ -99,7 +95,7 @@ router.post('/', bookingLimiter, async (req, res) => {
     const intent = await stripe.paymentIntents.create({
       amount: total_price_cents,
       currency: config.currency,
-      metadata: { booking_id: String(bookingId), car_slug },
+      metadata: { kind: 'rental', booking_id: String(bookingId), car_slug },
       receipt_email: customer_email,
       description: `Marlin Rentals - ${car.name} (${start_date} to ${end_date})`
     });

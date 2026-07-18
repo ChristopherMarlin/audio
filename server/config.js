@@ -20,5 +20,9 @@ module.exports = {
   holdMinutes: 15,
   // Flat placeholder fee for airport drop-off/pickup - adjust from the admin dashboard's config or here.
   airportFeeCents: 1500,
-  maxRentalDays: 60
+  maxRentalDays: 60,
+  // Card authorization holds cap out at 30 days even with extended auth
+  // requested (see README). Past this many rental nights, deposits are
+  // charged upfront and refunded at return instead of held.
+  depositHoldMaxNights: 28
 };

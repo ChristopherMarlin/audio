@@ -6,6 +6,7 @@ const STATUS_LABEL = {
 };
 
 let carsCache = [];
+let appConfig = null;
 
 function money(cents) { return `$${(cents / 100).toFixed(2)}`; }
 
@@ -20,6 +21,20 @@ function escapeHtml(s) {
 
 function statusPill(status) {
   return `<span class="status-pill status-${status}">${STATUS_LABEL[status] || status}</span>`;
+}
+
+const DEPOSIT_LABEL = {
+  none: 'No deposit',
+  requested: 'Awaiting customer',
+  authorized: 'Held',
+  captured: 'Captured',
+  released: 'Released',
+  failed: 'Failed',
+  expired: 'Expired'
+};
+
+function depositPill(status) {
+  return `<span class="status-pill status-${status}">${DEPOSIT_LABEL[status] || status}</span>`;
 }
 
 function showModal(html) {
@@ -46,6 +61,12 @@ async function init() {
     await api.post('/api/auth/logout', {});
     location.href = '/dashboard/login.html';
   });
+
+  try {
+    appConfig = await api.get('/api/config');
+  } catch (e) {
+    appConfig = null;
+  }
 
   document.querySelectorAll('.dash-tab').forEach((tab) => {
     tab.addEventListener('click', () => switchTab(tab.dataset.tab));
@@ -90,7 +111,7 @@ async function loadBookings() {
   const tbody = document.getElementById('bookings-body');
 
   if (!bookings.length) {
-    tbody.innerHTML = '<tr><td colspan="7">No bookings found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8">No bookings found.</td></tr>';
     return;
   }
 
@@ -102,10 +123,12 @@ async function loadBookings() {
       <td>${b.start_date} → ${b.end_date}</td>
       <td>${money(b.total_price_cents)}</td>
       <td>${statusPill(b.status)}</td>
+      <td>${depositPill(b.deposit_status)}</td>
       <td>
         ${b.status === 'pending_payment' ? `<button class="action-btn success" data-action="confirm" data-id="${b.id}">Confirm</button>` : ''}
         ${b.status === 'confirmed' ? `<button class="action-btn success" data-action="complete" data-id="${b.id}">Complete</button>` : ''}
         ${b.status !== 'cancelled' && b.status !== 'completed' ? `<button class="action-btn danger" data-action="cancel" data-id="${b.id}">Cancel</button>` : ''}
+        ${b.status === 'confirmed' ? `<button class="action-btn" data-action="deposit" data-id="${b.id}">Deposit</button>` : ''}
         <button class="action-btn" data-action="edit" data-id="${b.id}">Edit</button>
         <button class="action-btn danger" data-action="delete" data-id="${b.id}">Delete</button>
       </td>
@@ -133,6 +156,7 @@ async function handleBookingAction(action, id, bookings) {
     return;
   }
   if (action === 'edit') return openEditBookingModal(booking);
+  if (action === 'deposit') return openDepositModal(booking);
 }
 
 async function patchBooking(id, patch) {
@@ -179,6 +203,156 @@ function openEditBookingModal(b) {
   });
 }
 
+// ------------------------------------------------------------------ Deposits
+function nightsBetween(start, end) {
+  return Math.round((new Date(end + 'T00:00:00Z') - new Date(start + 'T00:00:00Z')) / 86400000);
+}
+
+function openDepositModal(b) {
+  const car = carsCache.find((c) => c.id === b.car_id);
+  const defaultDeposit = car ? (car.deposit_cents / 100).toFixed(2) : '';
+  const nights = nightsBetween(b.start_date, b.end_date);
+  const isLongRental = appConfig && nights > appConfig.depositHoldMaxNights;
+
+  let body;
+  if (['none', 'released', 'expired', 'failed'].includes(b.deposit_status)) {
+    const note = isLongRental
+      ? `This is a ${nights}-night rental, longer than a card hold can cover (max ~30 days) - the deposit will be <strong>charged upfront</strong> and refunded at return instead of just held.`
+      : 'Best requested near pickup, not at booking time - the hold typically only lasts 7-30 days.';
+    body = `
+      <p style="color:var(--muted);font-size:0.9rem;">${note}</p>
+      <form id="deposit-action-form">
+        <label>Deposit amount (USD)</label>
+        <input name="amount" type="number" min="0" step="0.01" value="${defaultDeposit}" required>
+        <div id="deposit-modal-alert"></div>
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top:14px;">Send Deposit Request</button>
+      </form>
+      <div id="deposit-link-box"></div>`;
+  } else if (b.deposit_status === 'requested') {
+    const link = `${location.origin}/deposit.html?token=${b.deposit_token}`;
+    body = `
+      <p>Waiting for the customer to authorize <strong>${money(b.deposit_amount_cents)}</strong>. Share this link with them:</p>
+      <div class="summary-box" style="word-break:break-all;font-size:0.85rem;">${link}</div>
+      <button class="btn btn-secondary" id="deposit-copy-link" style="margin-bottom:10px;">Copy Link</button>
+      <div id="deposit-modal-alert"></div>
+      <button class="btn btn-danger btn-block" id="deposit-cancel-request">Cancel Request</button>`;
+  } else if (b.deposit_status === 'authorized') {
+    const until = b.deposit_capture_before ? new Date(b.deposit_capture_before).toLocaleString() : 'unknown';
+    body = `
+      <p><strong>${money(b.deposit_amount_cents)}</strong> is held on the customer's card. Must be resolved by <strong>${until}</strong> or it releases automatically.</p>
+      <div id="deposit-modal-alert"></div>
+      <form id="deposit-capture-form" style="margin-bottom:14px;">
+        <label>Amount to capture (damage found)</label>
+        <input name="amount" type="number" min="0" step="0.01" max="${(b.deposit_amount_cents / 100).toFixed(2)}" value="${(b.deposit_amount_cents / 100).toFixed(2)}" required>
+        <button type="submit" class="btn btn-danger btn-block" style="margin-top:10px;">Capture</button>
+      </form>
+      <button class="btn btn-primary btn-block" id="deposit-release-btn">Release Hold (no damage)</button>`;
+  } else if (b.deposit_status === 'captured') {
+    body = `
+      <p><strong>${money(b.deposit_captured_cents)}</strong> was captured from this deposit.</p>
+      <div id="deposit-modal-alert"></div>
+      <form id="deposit-refund-form">
+        <label>Amount to refund (USD)</label>
+        <input name="amount" type="number" min="0" step="0.01" max="${(b.deposit_captured_cents / 100).toFixed(2)}" value="${(b.deposit_captured_cents / 100).toFixed(2)}" required>
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top:10px;">Refund</button>
+      </form>`;
+  }
+
+  showModal(`
+    <button class="modal-close" id="modal-close">&times;</button>
+    <h3>Deposit — Booking #${b.id}</h3>
+    ${body}
+  `);
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+
+  const alertBox = () => document.getElementById('deposit-modal-alert');
+
+  const form = document.getElementById('deposit-action-form');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const amount = Math.round(parseFloat(new FormData(form).get('amount')) * 100);
+        const result = await api.post(`/api/admin/bookings/${b.id}/deposit/request`, { amount_cents: amount });
+        document.getElementById('deposit-link-box').innerHTML = `
+          <p style="margin-top:10px;">Share this link with the customer:</p>
+          <div class="summary-box" style="word-break:break-all;font-size:0.85rem;">${result.deposit_link}</div>`;
+        await loadBookings();
+      } catch (err) {
+        alertBox().innerHTML = `<div class="alert alert-error">${err.message}</div>`;
+      }
+    });
+  }
+
+  const copyBtn = document.getElementById('deposit-copy-link');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(`${location.origin}/deposit.html?token=${b.deposit_token}`);
+      copyBtn.textContent = 'Copied!';
+    });
+  }
+
+  const cancelReqBtn = document.getElementById('deposit-cancel-request');
+  if (cancelReqBtn) {
+    cancelReqBtn.addEventListener('click', async () => {
+      if (!confirm('Cancel this deposit request?')) return;
+      try {
+        await api.post(`/api/admin/bookings/${b.id}/deposit/release`, {});
+        closeModal();
+        await loadBookings();
+      } catch (err) {
+        alertBox().innerHTML = `<div class="alert alert-error">${err.message}</div>`;
+      }
+    });
+  }
+
+  const captureForm = document.getElementById('deposit-capture-form');
+  if (captureForm) {
+    captureForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!confirm('Capture this amount from the customer\'s held deposit?')) return;
+      try {
+        const amount = Math.round(parseFloat(new FormData(captureForm).get('amount')) * 100);
+        await api.post(`/api/admin/bookings/${b.id}/deposit/capture`, { amount_cents: amount });
+        closeModal();
+        await loadBookings();
+      } catch (err) {
+        alertBox().innerHTML = `<div class="alert alert-error">${err.message}</div>`;
+      }
+    });
+  }
+
+  const releaseBtn = document.getElementById('deposit-release-btn');
+  if (releaseBtn) {
+    releaseBtn.addEventListener('click', async () => {
+      if (!confirm('Release this deposit hold? The customer will not be charged.')) return;
+      try {
+        await api.post(`/api/admin/bookings/${b.id}/deposit/release`, {});
+        closeModal();
+        await loadBookings();
+      } catch (err) {
+        alertBox().innerHTML = `<div class="alert alert-error">${err.message}</div>`;
+      }
+    });
+  }
+
+  const refundForm = document.getElementById('deposit-refund-form');
+  if (refundForm) {
+    refundForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!confirm('Refund this amount back to the customer?')) return;
+      try {
+        const amount = Math.round(parseFloat(new FormData(refundForm).get('amount')) * 100);
+        await api.post(`/api/admin/bookings/${b.id}/deposit/refund`, { amount_cents: amount });
+        closeModal();
+        await loadBookings();
+      } catch (err) {
+        alertBox().innerHTML = `<div class="alert alert-error">${err.message}</div>`;
+      }
+    });
+  }
+}
+
 // ---------------------------------------------------------------------- Fleet
 async function loadCars() {
   carsCache = await api.get('/api/admin/cars');
@@ -193,7 +367,7 @@ function renderFleetList() {
       <img src="${c.image}" alt="${c.name}">
       <div class="info">
         <h4>${c.name} ${c.active ? '' : '<span style="color:var(--coral);font-size:0.8rem;">(inactive)</span>'}</h4>
-        <div style="color:var(--muted);font-size:0.85rem;">${c.category} · ${c.seats} seats · ${c.transmission} · ${money(c.price_per_day_cents)}/day</div>
+        <div style="color:var(--muted);font-size:0.85rem;">${c.category} · ${c.seats} seats · ${c.transmission} · ${money(c.price_per_day_cents)}/day · ${money(c.deposit_cents)} deposit</div>
       </div>
       <button class="action-btn" data-edit-car="${c.id}">Edit</button>
     </div>
@@ -217,6 +391,7 @@ function openEditCarModal(car) {
       <div><label>Seats</label><input name="seats" type="number" min="1" max="15" value="${car.seats}" required></div>
       <div><label>Transmission</label><input name="transmission" value="${car.transmission}" required></div>
       <div><label>Price per day (USD)</label><input name="price" type="number" min="0" step="0.01" value="${(car.price_per_day_cents / 100).toFixed(2)}" required></div>
+      <div><label>Security deposit (USD)</label><input name="deposit" type="number" min="0" step="0.01" value="${(car.deposit_cents / 100).toFixed(2)}"></div>
       <div class="full"><label>Description</label><textarea name="description" rows="2">${car.description || ''}</textarea></div>
       <div class="full checkbox-row"><input type="checkbox" name="active" id="active-cb" ${car.active ? 'checked' : ''}><label for="active-cb" style="margin:0;">Listed / bookable</label></div>
       <div id="edit-car-alert" class="full"></div>
@@ -234,6 +409,7 @@ function openEditCarModal(car) {
         seats: parseInt(fd.get('seats'), 10),
         transmission: fd.get('transmission'),
         price_per_day_cents: Math.round(parseFloat(fd.get('price')) * 100),
+        deposit_cents: Math.round(parseFloat(fd.get('deposit') || '0') * 100),
         description: fd.get('description'),
         active: fd.get('active') === 'on'
       });
@@ -256,6 +432,7 @@ async function onAddCar(e) {
       seats: parseInt(fd.get('seats'), 10),
       transmission: fd.get('transmission'),
       price_per_day_cents: Math.round(parseFloat(fd.get('price')) * 100),
+      deposit_cents: Math.round(parseFloat(fd.get('deposit') || '0') * 100),
       description: fd.get('description')
     });
     e.target.reset();

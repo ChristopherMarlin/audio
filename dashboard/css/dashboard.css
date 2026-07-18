@@ -84,6 +84,14 @@ table.dash-table tr:last-child td { border-bottom: none; }
 .status-cancelled { background: #fde8e8; color: #b3261e; }
 .status-completed { background: #e2e8f0; color: #3d4a5c; }
 
+.status-none { background: #e2e8f0; color: #6b7686; }
+.status-requested { background: #fff3cd; color: #8a6d1a; }
+.status-authorized { background: #d7f7f7; color: #0089b3; }
+.status-captured { background: #e5f7ec; color: #1a7a4c; }
+.status-released { background: #e2e8f0; color: #3d4a5c; }
+.status-failed { background: #fde8e8; color: #b3261e; }
+.status-expired { background: #fde8e8; color: #b3261e; }
+
 .toolbar {
   display: flex;
   gap: 12px;
