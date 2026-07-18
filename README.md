@@ -103,6 +103,13 @@ Everything shipped is real, working code with **placeholder business content** y
 - Rate limiting on login, booking creation, and the API as a whole.
 - `npm audit` reports 0 vulnerabilities as of this build.
 
+## Performance & accessibility
+
+- Every color pair in the palette (`public/css/style.css`) was checked against WCAG AA contrast requirements (4.5:1 for normal text) and adjusted where the original vivid shades fell short — a few looked fine but were actually close to unreadable for some users (e.g. white text on the original coral button was 3.05:1, now 4.90:1).
+- Responses are gzip-compressed (`compression` middleware) and static assets serve with cache headers (1 hour) plus ETags, so repeat visits re-download less.
+- Car images reserve their aspect ratio in CSS to avoid layout shift while loading; calendar day cells have a minimum tap target size for mobile.
+- Admin/staff pages (`/dashboard/*`) and one-time transactional pages (`/deposit.html`, `/check-booking.html`) are marked `noindex` so they never show up in search results; public pages have real meta descriptions.
+
 ## Deployment
 
 This is a standard Node.js app — deploy it to any host that runs a persistent Node process (Render, Railway, Fly.io, a VPS with PM2, etc.). It is **not** a static site and won't work on GitHub Pages/Netlify-style static hosting, since it needs a real server for the database, sessions, and Stripe webhook.
