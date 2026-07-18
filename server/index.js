@@ -1,6 +1,7 @@
 const path = require('path');
 const express = require('express');
 const helmet = require('helmet');
+const compression = require('compression');
 const session = require('express-session');
 
 const config = require('./config');
@@ -35,6 +36,8 @@ app.use(
     }
   })
 );
+
+app.use(compression());
 
 // Stripe webhook needs the raw request body (as a Buffer) for signature
 // verification, so it gets its own express.raw() here instead of the global
@@ -75,9 +78,13 @@ app.get('/api/config', (req, res) => {
   });
 });
 
-app.use(express.static(path.join(__dirname, '..', 'public')));
-app.use('/dashboard', express.static(path.join(__dirname, '..', 'dashboard')));
-app.use('/mobile', express.static(path.join(__dirname, '..', 'mobile')));
+// Modest cache window - short enough that a content update (new prices,
+// tweaked copy) shows up quickly on revisit, long enough to skip re-fetching
+// unchanged assets within a single browsing session.
+const staticOptions = { maxAge: '1h', etag: true };
+app.use(express.static(path.join(__dirname, '..', 'public'), staticOptions));
+app.use('/dashboard', express.static(path.join(__dirname, '..', 'dashboard'), staticOptions));
+app.use('/mobile', express.static(path.join(__dirname, '..', 'mobile'), staticOptions));
 
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
 
