@@ -10,10 +10,13 @@
 
   let cars = [];
   let selectedCar = null;
+  let pickerExpanded = true;
   let stripe = null;
   let cardElement = null;
   let currentClientSecret = null;
   const AIRPORT_FEE_CENTS = 1500;
+  const calendarEl = document.getElementById('calendar');
+  const calendarPlaceholder = document.getElementById('calendar-placeholder');
 
   const calendar = createRangeCalendar({
     container: document.getElementById('calendar'),
@@ -52,6 +55,31 @@
   airportCheckbox.addEventListener('change', updateSummary);
 
   function renderCarPicker() {
+    if (selectedCar && !pickerExpanded) {
+      // Collapsed to just the chosen car, so there's no accidentally
+      // clicking a different one while filling out the form - but
+      // switching (e.g. if these dates aren't free) is still one click away.
+      const c = selectedCar;
+      carPicker.innerHTML = `
+        <div class="car-pick-summary">
+          <img src="${c.image}" alt="${c.name}">
+          <div class="car-pick-summary__body">
+            <h3>${c.name}</h3>
+            <div class="card__meta">
+              <span class="tag">${c.category}</span>
+              <span class="tag">${c.seats} seats</span>
+            </div>
+            <div class="car-pick__price">${money(c.price_per_day_cents)} <span>/ day</span></div>
+          </div>
+          <button type="button" class="btn btn-secondary btn-small" id="change-car-btn">Change car</button>
+        </div>`;
+      document.getElementById('change-car-btn').addEventListener('click', () => {
+        pickerExpanded = true;
+        renderCarPicker();
+      });
+      return;
+    }
+
     carPicker.innerHTML = cars.map((c) => `
       <div class="car-pick${selectedCar && selectedCar.slug === c.slug ? ' selected' : ''}" data-slug="${c.slug}">
         <img src="${c.image}" alt="${c.name}">
@@ -73,20 +101,32 @@
 
   async function loadCars() {
     cars = await api.get('/api/cars');
-    renderCarPicker();
 
     const params = new URLSearchParams(location.search);
     const preselect = params.get('car');
-    const initial = (preselect && cars.find((c) => c.slug === preselect)) || cars[0];
-    if (initial) await selectCar(initial.slug);
+    const initial = preselect && cars.find((c) => c.slug === preselect);
+    if (initial) {
+      // Arrived via a "Book This Car" link elsewhere on the site - that's
+      // already a deliberate choice, so start collapsed on that car.
+      await selectCar(initial.slug);
+    } else {
+      renderCarPicker();
+    }
   }
 
   async function selectCar(slug) {
-    if (selectedCar && selectedCar.slug === slug) return;
+    if (selectedCar && selectedCar.slug === slug) {
+      pickerExpanded = false;
+      renderCarPicker();
+      return;
+    }
     selectedCar = cars.find((c) => c.slug === slug) || null;
+    pickerExpanded = !selectedCar;
     renderCarPicker();
     calendar.reset();
     updateSummary();
+    calendarEl.style.display = selectedCar ? '' : 'none';
+    calendarPlaceholder.style.display = selectedCar ? 'none' : '';
     if (!selectedCar) return;
     try {
       const avail = await api.get(`/api/cars/${selectedCar.slug}/availability`);

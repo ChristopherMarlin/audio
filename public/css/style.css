@@ -261,6 +261,23 @@ section { padding: 64px 0; }
 .car-pick__price { font-size: 1.15rem; font-weight: 800; color: var(--teal-700); margin-top: 8px; }
 .car-pick__price span { font-size: 0.8rem; font-weight: 500; color: var(--muted); }
 
+.car-pick-summary {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 3px solid var(--teal-700);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+}
+.car-pick-summary img { width: 90px; border-radius: 8px; flex-shrink: 0; }
+.car-pick-summary__body { flex: 1; }
+.car-pick-summary__body h3 { margin: 0 0 6px; color: var(--teal-900); font-size: 1.05rem; }
+@media (max-width: 560px) {
+  .car-pick-summary { flex-wrap: wrap; }
+}
+
 .feature-grid { text-align: center; }
 .feature { padding: 20px; }
 .feature__icon { font-size: 2.2rem; margin-bottom: 10px; }
