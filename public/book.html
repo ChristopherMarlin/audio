@@ -29,20 +29,20 @@
   <h1 class="section-title">Book Your Car</h1>
   <p class="section-sub">Pick a car and your dates. Dates are locked in the instant your payment succeeds — no one else can book them.</p>
 
-  <div id="step-form" class="grid" style="grid-template-columns: 1.1fr 1fr; align-items:start;">
-    <div>
-      <div class="card"><div class="card__body">
-        <label for="car_select">Choose a car</label>
-        <select id="car_select"></select>
+  <div id="step-form">
+    <label class="picker-label">Choose a car</label>
+    <div id="car-picker" class="car-picker"></div>
 
-        <div style="height:18px"></div>
-        <label>Select pickup &amp; return dates</label>
-        <div id="calendar" class="calendar"></div>
-      </div></div>
-    </div>
+    <div class="grid" style="grid-template-columns: 1.1fr 1fr; align-items:start; margin-top:24px;">
+      <div>
+        <div class="card"><div class="card__body">
+          <label>Select pickup &amp; return dates</label>
+          <div id="calendar" class="calendar"></div>
+        </div></div>
+      </div>
 
-    <div>
-      <form id="booking-form" class="card"><div class="card__body">
+      <div>
+        <form id="booking-form" class="card"><div class="card__body">
         <div class="summary-box" id="summary-box">
           <p style="color:var(--muted);margin:0;">Choose a car and dates to see your price.</p>
         </div>
@@ -80,6 +80,7 @@
           Select dates to continue
         </button>
       </div></form>
+      </div>
     </div>
   </div>
 
