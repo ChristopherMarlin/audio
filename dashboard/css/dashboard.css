@@ -1,0 +1,127 @@
+.login-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--teal-700), var(--teal-900));
+}
+.login-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 36px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.dash-header {
+  background: var(--teal-900);
+  color: var(--white);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dash-header img { height: 32px; filter: brightness(0) invert(1); }
+.dash-header .who { font-size: 0.9rem; color: #cfe9ea; }
+.dash-header button {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.4);
+  color: var(--white);
+  padding: 7px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.dash-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 14px 24px 0;
+  border-bottom: 1px solid #e2ecec;
+  background: var(--white);
+  flex-wrap: wrap;
+}
+.dash-tab {
+  padding: 10px 18px;
+  border: none;
+  background: transparent;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+}
+.dash-tab.active { color: var(--teal-700); border-bottom-color: var(--teal-700); }
+
+.dash-main { padding: 24px; max-width: 1200px; margin: 0 auto; }
+.dash-panel { display: none; }
+.dash-panel.active { display: block; }
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 18px 20px;
+}
+.stat-card .num { font-size: 1.7rem; font-weight: 800; color: var(--teal-700); }
+.stat-card .label { color: var(--muted); font-size: 0.85rem; }
+
+.dash-table-wrap { background: var(--white); border-radius: 12px; box-shadow: var(--shadow); overflow-x: auto; }
+table.dash-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+table.dash-table th, table.dash-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #eef3f3; white-space: nowrap; }
+table.dash-table th { background: var(--teal-100); color: var(--teal-900); position: sticky; top: 0; }
+table.dash-table tr:last-child td { border-bottom: none; }
+
+.status-pill { padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+.status-pending_payment { background: #fff3cd; color: #8a6d1a; }
+.status-confirmed { background: #e5f7ec; color: #1a7a4c; }
+.status-cancelled { background: #fde8e8; color: #b3261e; }
+.status-completed { background: #e2e8f0; color: #3d4a5c; }
+
+.toolbar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.toolbar select, .toolbar input { width: auto; }
+
+.action-btn {
+  border: none;
+  background: var(--teal-100);
+  color: var(--teal-700);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-right: 4px;
+}
+.action-btn.danger { background: #fde8e8; color: #b3261e; }
+.action-btn.success { background: #e5f7ec; color: #1a7a4c; }
+
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(3,59,71,0.5);
+  display: flex; align-items: center; justify-content: center; z-index: 100;
+}
+.modal {
+  background: var(--white); border-radius: 14px; padding: 26px; max-width: 480px; width: 92%;
+  max-height: 90vh; overflow-y: auto;
+}
+.modal h3 { margin-top: 0; color: var(--teal-900); }
+.modal-close { float: right; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--muted); }
+
+.section-block { background: var(--white); border-radius: 12px; box-shadow: var(--shadow); padding: 20px; margin-bottom: 20px; }
+.section-block h3 { margin-top: 0; color: var(--teal-900); }
+
+.car-row { display: flex; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid #eef3f3; }
+.car-row img { width: 90px; border-radius: 8px; }
+.car-row .info { flex: 1; }
+.car-row .info h4 { margin: 0 0 4px; color: var(--teal-900); }

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220">
+  <rect width="400" height="220" fill="#eaf7f8"/>
+  <ellipse cx="200" cy="180" rx="158" ry="10" fill="#cfe9ea"/>
+  <path d="M50 150 Q50 98 102 94 L128 66 Q147 54 180 54 L248 54 Q276 54 292 74 L308 94 Q352 98 352 136 L352 150 Z" fill="#ffb703"/>
+  <path d="M140 92 L160 68 Q172 61 190 61 L245 61 Q261 61 272 76 L284 92 Z" fill="#bfe3f0"/>
+  <circle cx="120" cy="154" r="27" fill="#1a1a1a"/>
+  <circle cx="120" cy="154" r="11" fill="#c7c7c7"/>
+  <circle cx="296" cy="154" r="27" fill="#1a1a1a"/>
+  <circle cx="296" cy="154" r="11" fill="#c7c7c7"/>
+  <rect x="50" y="140" width="302" height="10" fill="#d99400"/>
+  <text x="200" y="205" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#046e83">Chevrolet Trax</text>
+</svg>

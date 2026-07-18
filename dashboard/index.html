@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard — Marlin Rentals</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/dashboard/css/dashboard.css">
+</head>
+<body>
+
+<header class="dash-header">
+  <img src="/images/logo.svg" alt="Marlin Rentals">
+  <div style="display:flex;align-items:center;gap:16px;">
+    <span class="who" id="who"></span>
+    <button id="logout-btn">Log out</button>
+  </div>
+</header>
+
+<nav class="dash-tabs">
+  <button class="dash-tab active" data-tab="overview">Overview</button>
+  <button class="dash-tab" data-tab="bookings">Bookings</button>
+  <button class="dash-tab" data-tab="fleet">Fleet</button>
+  <button class="dash-tab" data-tab="blocks">Blocked Dates</button>
+</nav>
+
+<main class="dash-main">
+
+  <section id="panel-overview" class="dash-panel active">
+    <div class="stat-grid" id="stat-grid"></div>
+    <div class="section-block">
+      <h3>Upcoming Pickups</h3>
+      <div class="dash-table-wrap">
+        <table class="dash-table">
+          <thead><tr><th>Pickup Date</th><th>Return Date</th><th>Car</th><th>Customer</th></tr></thead>
+          <tbody id="upcoming-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="panel-bookings" class="dash-panel">
+    <div class="toolbar">
+      <label for="filter-status" style="margin:0;">Status:</label>
+      <select id="filter-status">
+        <option value="">All</option>
+        <option value="pending_payment">Pending payment</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="cancelled">Cancelled</option>
+        <option value="completed">Completed</option>
+      </select>
+      <button class="btn btn-secondary btn-small" id="refresh-bookings">Refresh</button>
+    </div>
+    <div class="dash-table-wrap">
+      <table class="dash-table">
+        <thead><tr><th>ID</th><th>Car</th><th>Customer</th><th>Dates</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="bookings-body"><tr><td colspan="7">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="panel-fleet" class="dash-panel">
+    <div class="section-block">
+      <h3>Add a Car</h3>
+      <form id="add-car-form" class="form-grid">
+        <div><label>Slug (unique id)</label><input name="slug" required placeholder="e.g. toyota-yaris"></div>
+        <div><label>Name</label><input name="name" required></div>
+        <div><label>Category</label><input name="category" required placeholder="Economy / SUV / etc."></div>
+        <div><label>Seats</label><input name="seats" type="number" min="1" max="15" required></div>
+        <div><label>Transmission</label><input name="transmission" required placeholder="Automatic / Manual"></div>
+        <div><label>Price per day (USD)</label><input name="price" type="number" min="0" step="0.01" required></div>
+        <div class="full"><label>Description</label><textarea name="description" rows="2"></textarea></div>
+        <div class="full"><button class="btn btn-primary" type="submit">Add Car</button></div>
+      </form>
+    </div>
+    <div class="section-block">
+      <h3>Current Fleet</h3>
+      <div id="fleet-list">Loading…</div>
+    </div>
+  </section>
+
+  <section id="panel-blocks" class="dash-panel">
+    <div class="section-block">
+      <h3>Block Dates (maintenance, personal use, etc.)</h3>
+      <form id="add-block-form" class="form-grid">
+        <div><label>Car</label><select name="car_id" id="block-car-select"></select></div>
+        <div></div>
+        <div><label>From</label><input name="start_date" type="date" required></div>
+        <div><label>To</label><input name="end_date" type="date" required></div>
+        <div class="full"><label>Reason</label><input name="reason" placeholder="maintenance"></div>
+        <div class="full"><button class="btn btn-primary" type="submit">Add Block</button></div>
+      </form>
+      <div id="block-alert"></div>
+    </div>
+    <div class="section-block">
+      <h3>Current Blocks</h3>
+      <div class="dash-table-wrap">
+        <table class="dash-table">
+          <thead><tr><th>Car</th><th>From</th><th>To</th><th>Reason</th><th></th></tr></thead>
+          <tbody id="blocks-body"><tr><td colspan="5">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="modal-root"></div>
+
+<script src="/js/api.js"></script>
+<script src="/dashboard/js/dashboard.js"></script>
+</body>
+</html>

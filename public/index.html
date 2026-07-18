@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marlin Rentals — Car Rental in Curaçao</title>
+<meta name="description" content="Marlin Rentals: friendly, personal car rental service in Curaçao. Kia Picanto, Kia Sorento, Chevrolet Trax. Airport drop-off available.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <a href="/" class="nav__logo"><img src="/images/logo.svg" alt="Marlin Rentals"></a>
+    <ul class="nav__links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/fleet.html">Our Fleet</a></li>
+      <li><a href="/book.html">Book Now</a></li>
+      <li><a href="/contact.html">Contact</a></li>
+      <li><a href="/check-booking.html">My Booking</a></li>
+    </ul>
+    <a href="/book.html" class="nav__cta">Book Now</a>
+    <button class="nav__toggle" aria-label="Menu">☰</button>
+  </nav>
+</header>
+
+<section class="hero">
+  <img class="hero__bg" src="/images/hero-curacao.svg" alt="Colorful waterfront houses and turquoise sea in Curaçao">
+  <div class="hero__overlay"></div>
+  <div class="hero__content">
+    <h1>Explore Curaçao your way</h1>
+    <p>Friendly, personal car rental service based in Curaçao. Pick a car, pick your dates, and hit the road — we'll even drop off at the airport.</p>
+    <a href="/book.html" class="btn btn-primary">Book Your Car</a>
+    <a href="/fleet.html" class="btn btn-outline" style="margin-left:12px;">View Fleet</a>
+  </div>
+</section>
+
+<section class="container feature-grid">
+  <h2 class="section-title">Why rent with Marlin?</h2>
+  <p class="section-sub">A small, local company that treats every renter like a guest — not a reservation number.</p>
+  <div class="grid">
+    <div class="feature">
+      <div class="feature__icon">🤝</div>
+      <h3>Friendly, personal service</h3>
+      <p>You'll talk to a real local team who knows the island — tips on beaches, roads, and hidden spots included.</p>
+    </div>
+    <div class="feature">
+      <div class="feature__icon">✈️</div>
+      <h3>Airport drop-off</h3>
+      <p>Landing at Hato International? We can drop your car off right at the airport so you're driving within minutes.</p>
+    </div>
+    <div class="feature">
+      <div class="feature__icon">📅</div>
+      <h3>Real-time availability</h3>
+      <p>Our booking calendar always reflects what's actually free — no double-bookings, no surprises.</p>
+    </div>
+  </div>
+</section>
+
+<section class="container">
+  <h2 class="section-title">Our Fleet</h2>
+  <p class="section-sub">A small, well-kept fleet covering everything from city runs to family road trips.</p>
+  <div class="grid" id="home-fleet">
+    <p style="text-align:center;color:var(--muted)">Loading cars…</p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="container" style="text-align:center;">
+    <h2 class="section-title">Ready to explore the island?</h2>
+    <p class="section-sub">Reserve online in a couple of minutes. Your dates are locked in the moment you book.</p>
+    <a href="/book.html" class="btn btn-primary">Book Your Car Now</a>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h4>Marlin Rentals</h4>
+        <p>Friendly, personal car rental service based in Curaçao.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="/fleet.html">Our Fleet</a></li>
+          <li><a href="/book.html">Book Now</a></li>
+          <li><a href="/check-booking.html">My Booking</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/contact.html">Contact Us</a></li>
+          <li><a href="/dashboard/">Staff Login</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li>📍 Curaçao</li>
+          <li>✉️ info@marlinrentals.example</li>
+          <li>📞 +5999 000 0000</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; <span id="year"></span> Marlin Rentals. All rights reserved.</div>
+  </div>
+</footer>
+
+<script src="/js/nav.js"></script>
+<script src="/js/footer-year.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/home.js"></script>
+</body>
+</html>

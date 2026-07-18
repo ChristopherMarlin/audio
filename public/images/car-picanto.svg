@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220">
+  <rect width="400" height="220" fill="#eaf7f8"/>
+  <ellipse cx="200" cy="178" rx="150" ry="10" fill="#cfe9ea"/>
+  <path d="M60 150 Q60 100 110 95 L140 70 Q160 58 190 58 L250 58 Q275 58 290 78 L305 100 Q345 105 345 140 L345 150 Z" fill="#e63946"/>
+  <path d="M150 96 L172 74 Q185 65 205 65 L245 65 Q262 65 272 80 L282 96 Z" fill="#bfe3f0"/>
+  <circle cx="120" cy="152" r="26" fill="#232323"/>
+  <circle cx="120" cy="152" r="11" fill="#c7c7c7"/>
+  <circle cx="290" cy="152" r="26" fill="#232323"/>
+  <circle cx="290" cy="152" r="11" fill="#c7c7c7"/>
+  <rect x="60" y="140" width="286" height="10" fill="#b32734"/>
+  <text x="200" y="205" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#046e83">Kia Picanto</text>
+</svg>
