@@ -79,10 +79,12 @@ app.get('/api/config', (req, res) => {
   });
 });
 
-// Modest cache window - short enough that a content update (new prices,
-// tweaked copy) shows up quickly on revisit, long enough to skip re-fetching
-// unchanged assets within a single browsing session.
-const staticOptions = { maxAge: '1h', etag: true };
+// maxAge:0 with etag:true still lets browsers (and any CDN in front of this
+// app) cache these files, but forces a revalidation request on every load -
+// an unchanged file gets a fast 304, but a file that changed on deploy is
+// never served stale for the length of a cache window like the old 1h
+// setting did.
+const staticOptions = { maxAge: 0, etag: true };
 app.use(express.static(path.join(__dirname, '..', 'public'), staticOptions));
 app.use('/dashboard', express.static(path.join(__dirname, '..', 'dashboard'), staticOptions));
 app.use('/mobile', express.static(path.join(__dirname, '..', 'mobile'), staticOptions));
