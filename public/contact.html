@@ -9,6 +9,91 @@
 <link rel="stylesheet" href="/css/style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap">
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav__logo">Marlin Rentals</a>
+  <div class="nav__links">
+    <a href="/">Home</a>
+    <a href="/fleet.html">Fleet</a>
+    <a href="/book.html">Book</a>
+    <a href="/contact.html" class="active">Contact</a>
+  </div>
+  <button class="nav__toggle" aria-label="Menu">☰</button>
+  <a href="/book.html" class="nav__cta">Book Now</a>
+</nav>
+<div class="mobile-menu">
+  <a href="/">Home</a>
+  <a href="/fleet.html">Fleet</a>
+  <a href="/book.html">Book</a>
+  <a href="/contact.html" class="active">Contact</a>
+</div>
+
+<main class="page-main">
+<section class="container" style="padding:60px 0 20px;text-align:center;">
+  <div class="eyebrow" style="text-align:center;">GET IN TOUCH</div>
+  <h1 style="font-size:clamp(32px,5vw,48px);margin-bottom:14px;">We're here to help</h1>
+  <p class="section-sub">Questions about a booking, your car, or the island? Reach out any time.</p>
+</section>
+
+<section class="container" style="padding:40px 0 100px;">
+  <div class="contact-layout">
+
+    <form id="contact-form" class="card">
+      <div class="card__header-title" style="margin-bottom:24px;">Send us a message</div>
+      <div class="form-row-2">
+        <div class="field">
+          <label for="contact_name">Full name</label>
+          <input id="contact_name" required maxlength="120" placeholder="Jane Doe">
+        </div>
+        <div class="field">
+          <label for="contact_email">Email</label>
+          <input id="contact_email" type="email" required maxlength="254" placeholder="jane@example.com">
+        </div>
+      </div>
+      <div class="field">
+        <label for="contact_subject">Subject</label>
+        <input id="contact_subject" required maxlength="150" placeholder="Booking question">
+      </div>
+      <div class="field">
+        <label for="contact_message">Message</label>
+        <textarea id="contact_message" rows="6" required maxlength="2000" placeholder="Tell us how we can help..."></textarea>
+      </div>
+      <div id="contact-alert"></div>
+      <button type="submit" class="btn btn-primary">Send message →</button>
+      <p style="font-size:12px;color:var(--muted);margin-top:14px;margin-bottom:0;">This opens your email app with the message pre-filled — we reply from official@marlinrentals.com.</p>
+    </form>
+
+    <div style="display:flex;flex-direction:column;gap:20px;">
+      <div class="contact-info-card">
+        <div class="summary-sidebar__title" style="margin-bottom:20px;">Contact info</div>
+        <div class="contact-info-row">
+          <div class="contact-info-row__icon">📞</div>
+          <div>
+            <div class="contact-info-row__main"><a href="tel:+59995173921" style="color:#fff;">+5999 517 3921</a></div>
+            <div class="contact-info-row__sub">Mon–Sun, 7am–10pm</div>
+          </div>
+        </div>
+        <div class="contact-info-row">
+          <div class="contact-info-row__icon">✉️</div>
+          <div>
+            <div class="contact-info-row__main"><a href="mailto:official@marlinrentals.com" style="color:#fff;">official@marlinrentals.com</a></div>
+            <div class="contact-info-row__sub">We reply within 2 hours</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-photo"><img src="/images/hero-curacao.jpg" alt="Marlin Rentals storefront in Curaçao"></div>
+
+      <div class="contact-callout">
+        <div class="contact-callout__icon">🏖️</div>
+        <div class="contact-callout__title">Airport &amp; port pickup</div>
+        <div class="contact-callout__body">Available 24/7 — just mention it when you book.</div>
+      </div>
+    </div>
+
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap">
 </head>
 <body>
@@ -46,14 +131,43 @@
     </div></div>
   </div>
 </section>
+</main>
 
 <footer class="site-footer">
-  <div class="container">
-    <div class="footer-bottom">&copy; <span id="year"></span> Marlin Rentals. All rights reserved.</div>
+  <div class="site-footer__inner">
+    <div>
+      <div class="site-footer__brand">Marlin Rentals</div>
+      <p class="site-footer__tagline">Curaçao's favorite way to explore the island — since 2023.</p>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/fleet.html">Fleet</a></li>
+        <li><a href="/book.html">Book a car</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Support</h4>
+      <ul>
+        <li><a href="/contact.html">Contact us</a></li>
+        <li><a href="/check-booking.html">My booking</a></li>
+        <li><a href="/dashboard/">Staff login</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Reach us</h4>
+      <ul>
+        <li>+5999 517 3921</li>
+        <li>official@marlinrentals.com</li>
+      </ul>
+    </div>
   </div>
 </footer>
+<div class="footer-bottom">&copy; <span id="year"></span> Marlin Rentals. All rights reserved.</div>
 
 <script src="/js/nav.js"></script>
 <script src="/js/footer-year.js"></script>
+<script src="/js/contact.js"></script>
 </body>
 </html>

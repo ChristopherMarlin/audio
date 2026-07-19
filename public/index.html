@@ -13,21 +13,25 @@
 </head>
 <body>
 
-<header class="site-header">
-  <nav class="nav">
-    <a href="/" class="nav__logo"><img src="/images/logo.svg" alt="Marlin Rentals"></a>
-    <ul class="nav__links">
-      <li><a href="/">Home</a></li>
-      <li><a href="/fleet.html">Our Fleet</a></li>
-      <li><a href="/book.html">Book Now</a></li>
-      <li><a href="/contact.html">Contact</a></li>
-      <li><a href="/check-booking.html">My Booking</a></li>
-    </ul>
-    <a href="/book.html" class="nav__cta">Book Now</a>
-    <button class="nav__toggle" aria-label="Menu">☰</button>
-  </nav>
-</header>
+<nav class="nav">
+  <a href="/" class="nav__logo">Marlin Rentals</a>
+  <div class="nav__links">
+    <a href="/" class="active">Home</a>
+    <a href="/fleet.html">Fleet</a>
+    <a href="/book.html">Book</a>
+    <a href="/contact.html">Contact</a>
+  </div>
+  <button class="nav__toggle" aria-label="Menu">☰</button>
+  <a href="/book.html" class="nav__cta">Book Now</a>
+</nav>
+<div class="mobile-menu">
+  <a href="/" class="active">Home</a>
+  <a href="/fleet.html">Fleet</a>
+  <a href="/book.html">Book</a>
+  <a href="/contact.html">Contact</a>
+</div>
 
+<main class="page-main">
 <section class="hero">
   <img class="hero__bg" src="/images/hero-curacao.jpg" alt="Colorful waterfront houses and turquoise sea in Curaçao">
   <div class="hero__overlay"></div>
@@ -39,43 +43,89 @@
   </div>
 </section>
 
-<section class="container feature-grid">
-  <h2 class="section-title">Why rent with Marlin?</h2>
-  <p class="section-sub">A small, local company that treats every renter like a guest — not a reservation number.</p>
-  <div class="grid">
+<section class="feature-band">
+  <div class="feature-grid">
     <div class="feature">
-      <div class="feature__icon">🤝</div>
-      <h3>Friendly, personal service</h3>
-      <p>You'll talk to a real local team who knows the island — tips on beaches, roads, and hidden spots included.</p>
+      <div class="feature__icon">🏝️</div>
+      <div class="feature__title">Island-wide pickup</div>
+      <div class="feature__body">Airport, cruise port, or your resort — we bring the keys to you.</div>
     </div>
     <div class="feature">
-      <div class="feature__icon">✈️</div>
-      <h3>Airport drop-off</h3>
-      <p>Landing at Hato International? We can drop your car off right at the airport so you're driving within minutes.</p>
+      <div class="feature__icon">🔓</div>
+      <div class="feature__title">No hidden fees</div>
+      <div class="feature__body">The price you see at checkout is the price you pay. Always.</div>
     </div>
     <div class="feature">
-      <div class="feature__icon">📅</div>
-      <h3>Real-time availability</h3>
-      <p>Our booking calendar always reflects what's actually free — no double-bookings, no surprises.</p>
+      <div class="feature__icon">🛡️</div>
+      <div class="feature__title">Friendly service</div>
+      <div class="feature__body">Real people ready to help before, during, and after your rental.</div>
+    </div>
+    <div class="feature">
+      <div class="feature__icon">📱</div>
+      <div class="feature__title">Book in 2 minutes</div>
+      <div class="feature__body">Pick, pay, and get your confirmation — no lines, no paperwork.</div>
     </div>
   </div>
 </section>
 
-<section class="container">
-  <h2 class="section-title">Our Fleet</h2>
-  <p class="section-sub">A small, well-kept fleet covering everything from city runs to family road trips.</p>
-  <div class="grid" id="home-fleet">
+<section class="container" style="padding:90px 0;">
+  <div class="fleet-header">
+    <div>
+      <div class="eyebrow">THE FLEET</div>
+      <h2 style="font-size:clamp(30px,4vw,42px);">Rides for every kind of trip</h2>
+    </div>
+    <a href="/fleet.html" class="see-all-link">See all cars →</a>
+  </div>
+  <div class="fleet-grid" id="home-fleet">
     <p style="text-align:center;color:var(--muted)">Loading cars…</p>
   </div>
 </section>
 
-<section class="band">
-  <div class="container" style="text-align:center;">
-    <h2 class="section-title">Ready to explore the island?</h2>
-    <p class="section-sub">Reserve online in a couple of minutes. Your dates are locked in the moment you book.</p>
-    <a href="/book.html" class="btn btn-primary">Book Your Car Now</a>
+<section class="how-band">
+  <div style="max-width:1200px;margin:0 auto;">
+    <h2 style="font-size:clamp(30px,4vw,42px);text-align:center;margin-bottom:56px;">Three steps to the coast</h2>
+    <div class="how-grid">
+      <div class="how-step">
+        <div class="how-step__num" style="background:var(--coral);">1</div>
+        <div class="how-step__title">Pick your car</div>
+        <div class="how-step__body">Browse the fleet by type, size, or price and lock in the one you love.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-step__num" style="background:var(--teal-700);">2</div>
+        <div class="how-step__title">Choose your dates</div>
+        <div class="how-step__body">Pick pickup and return dates on the calendar — see your total instantly.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-step__num" style="background:var(--sun);color:var(--teal-900);">3</div>
+        <div class="how-step__title">Hit the road</div>
+        <div class="how-step__body">Confirm and go — grab your keys and start exploring the island.</div>
+      </div>
+    </div>
   </div>
 </section>
+
+<section class="testimonial">
+  <div class="testimonial__icon">🌴</div>
+  <p class="testimonial__quote">"Booked a jeep in five minutes flat and picked it up right at the airport. Easiest part of the whole trip."</p>
+  <div class="testimonial__who">
+    <div class="testimonial__avatar"></div>
+    <div style="text-align:left">
+      <div class="testimonial__name">Danielle M.</div>
+      <div class="testimonial__loc">Willemstad, Curaçao</div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-banner">
+  <div class="cta-banner__circle" style="top:-40px;left:-40px;width:180px;height:180px;"></div>
+  <div class="cta-banner__circle" style="bottom:-60px;right:60px;width:220px;height:220px;"></div>
+  <div style="position:relative;z-index:1;">
+    <h2 class="cta-banner__title">Ready for the open road?</h2>
+    <p class="cta-banner__body">Reserve your car today — secure checkout, confirmed in minutes.</p>
+    <a href="/book.html" class="btn-white">Book your car →</a>
+  </div>
+</section>
+</main>
 
 <footer class="site-footer">
   <div class="container">
@@ -107,13 +157,14 @@
         </ul>
       </div>
     </div>
-    <div class="footer-bottom">&copy; <span id="year"></span> Marlin Rentals. All rights reserved.</div>
   </div>
 </footer>
+<div class="footer-bottom">&copy; <span id="year"></span> Marlin Rentals. All rights reserved.</div>
 
 <script src="/js/nav.js"></script>
 <script src="/js/footer-year.js"></script>
 <script src="/js/api.js"></script>
+<script src="/js/car-meta.js"></script>
 <script src="/js/home.js"></script>
 </body>
 </html>
