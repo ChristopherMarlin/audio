@@ -28,7 +28,8 @@ app.use(
         scriptSrc: ["'self'", 'https://js.stripe.com'],
         frameSrc: ["'self'", 'https://js.stripe.com'],
         connectSrc: ["'self'", 'https://api.stripe.com'],
-        styleSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:'],
         objectSrc: ["'none'"],
         baseUri: ["'self'"]
