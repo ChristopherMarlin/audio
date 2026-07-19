@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Our Fleet — Marlin Rentals</title>
-<meta name="description" content="Browse Marlin Rentals' fleet in Curaçao: Kia Picanto, Kia Sorento, and Chevrolet Trax, with daily rates and unlimited island mileage.">
+<title>Car Details — Marlin Rentals</title>
+<meta name="description" content="Full details, specs, and pricing for every car in the Marlin Rentals fleet in Curaçao.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/css/style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,21 +31,44 @@
   <a href="/contact.html">Contact</a>
 </div>
 
-<section class="container" style="padding:60px 0 20px;text-align:center;">
-  <div class="eyebrow" style="text-align:center;">THE FLEET</div>
-  <h1 style="font-size:clamp(32px,5vw,48px);margin-bottom:14px;">Find your perfect ride</h1>
-  <p class="section-sub">From open-top jeeps to family SUVs — every car comes with full coverage and free island-wide pickup.</p>
+<section class="container" style="padding:30px 0 0;">
+  <a href="/fleet.html" class="back-link">← Back to fleet</a>
 </section>
 
-<div style="display:flex;justify-content:center;gap:14px;padding:30px 56px;flex-wrap:wrap;">
-  <div style="background:var(--teal-900);color:#fff;padding:12px 24px;border-radius:999px;font-weight:800;font-size:14px;">All cars</div>
+<div id="car-detail-root">
+  <section class="container" style="padding:20px 0 60px;">
+    <div class="gallery-layout">
+      <div>
+        <div class="gallery-main"><img id="car-main-img" src="/images/car-placeholder.svg" alt=""></div>
+        <div class="gallery-thumbs">
+          <div><img class="car-thumb-img" src="/images/car-placeholder.svg" alt=""></div>
+          <div><img class="car-thumb-img" src="/images/car-placeholder.svg" alt=""></div>
+          <div><img class="car-thumb-img" src="/images/car-placeholder.svg" alt=""></div>
+        </div>
+      </div>
+      <div>
+        <div class="hero__badge" id="car-badge">Loading…</div>
+        <h1 class="car-detail__title" id="car-title"></h1>
+        <p class="car-detail__desc" id="car-desc"></p>
+        <div class="spec-grid" id="spec-grid"></div>
+        <div class="price-banner">
+          <div>
+            <div class="price-banner__price" id="car-price"></div>
+            <div class="price-banner__note">Free island-wide pickup</div>
+          </div>
+          <a href="/book.html" id="car-book-link" class="btn btn-primary">Book this car →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="other-cars-band">
+    <div class="container">
+      <h2 style="font-size:28px;margin-bottom:24px;">Other cars in the fleet</h2>
+      <div class="other-cars-grid" id="other-cars"></div>
+    </div>
+  </section>
 </div>
-
-<section class="container" style="padding:20px 0 100px;">
-  <div class="fleet-grid" id="fleet-list">
-    <p style="text-align:center;color:var(--muted)">Loading cars…</p>
-  </div>
-</section>
 
 <footer class="site-footer">
   <div>
@@ -82,6 +105,6 @@
 <script src="/js/footer-year.js"></script>
 <script src="/js/api.js"></script>
 <script src="/js/car-meta.js"></script>
-<script src="/js/fleet.js"></script>
+<script src="/js/car.js"></script>
 </body>
 </html>

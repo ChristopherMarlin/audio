@@ -9,30 +9,33 @@
 <link rel="stylesheet" href="/css/style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap">
 </head>
 <body>
 
-<header class="site-header">
-  <nav class="nav">
-    <a href="/" class="nav__logo"><img src="/images/logo.svg" alt="Marlin Rentals"></a>
-    <ul class="nav__links">
-      <li><a href="/">Home</a></li>
-      <li><a href="/fleet.html">Our Fleet</a></li>
-      <li><a href="/book.html">Book Now</a></li>
-      <li><a href="/contact.html">Contact</a></li>
-      <li><a href="/check-booking.html">My Booking</a></li>
-    </ul>
-    <a href="/book.html" class="nav__cta">Book Now</a>
-    <button class="nav__toggle" aria-label="Menu">☰</button>
-  </nav>
-</header>
+<nav class="nav">
+  <a href="/" class="nav__logo">Marlin Rentals</a>
+  <div class="nav__links">
+    <a href="/">Home</a>
+    <a href="/fleet.html">Fleet</a>
+    <a href="/book.html">Book</a>
+    <a href="/contact.html">Contact</a>
+  </div>
+  <button class="nav__toggle" aria-label="Menu">☰</button>
+  <a href="/book.html" class="nav__cta">Book Now</a>
+</nav>
+<div class="mobile-menu">
+  <a href="/">Home</a>
+  <a href="/fleet.html">Fleet</a>
+  <a href="/book.html">Book</a>
+  <a href="/contact.html">Contact</a>
+</div>
 
 <section class="container" style="padding-top:48px; max-width:520px;">
   <h1 class="section-title">Check Your Booking</h1>
   <p class="section-sub">Enter your booking number (from your confirmation email) and the email you booked with.</p>
 
-  <form id="lookup-form" class="card"><div class="card__body">
+  <form id="lookup-form" class="card">
     <label for="booking_id">Booking number</label>
     <input id="booking_id" name="booking_id" type="number" min="1" required>
     <div style="height:14px"></div>
@@ -40,16 +43,39 @@
     <input id="email" name="email" type="email" required>
     <div id="lookup-alert"></div>
     <button type="submit" class="btn btn-primary btn-block" style="margin-top:16px;">Look Up Booking</button>
-  </div></form>
+  </form>
 
   <div id="result"></div>
 </section>
 
 <footer class="site-footer">
-  <div class="container">
-    <div class="footer-bottom">&copy; <span id="year"></span> Marlin Rentals. All rights reserved.</div>
+  <div>
+    <div class="site-footer__brand">Marlin Rentals</div>
+    <p class="site-footer__tagline">Curaçao's favorite way to explore the island — since 2023.</p>
+  </div>
+  <div>
+    <h4>Explore</h4>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/fleet.html">Fleet</a></li>
+      <li><a href="/book.html">Book a car</a></li>
+    </ul>
+  </div>
+  <div>
+    <h4>Support</h4>
+    <ul>
+      <li><a href="/contact.html">Contact us</a></li>
+    </ul>
+  </div>
+  <div>
+    <h4>Reach us</h4>
+    <ul>
+      <li>+5999 517 3921</li>
+      <li>official@marlinrentals.com</li>
+    </ul>
   </div>
 </footer>
+<div class="footer-bottom">&copy; <span id="year"></span> Marlin Rentals. All rights reserved.</div>
 
 <script src="/js/nav.js"></script>
 <script src="/js/footer-year.js"></script>

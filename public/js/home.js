@@ -3,21 +3,25 @@
   try {
     const cars = await api.get('/api/cars');
     if (!cars.length) { el.innerHTML = '<p style="text-align:center">No cars available right now.</p>'; return; }
-    el.innerHTML = cars.map((car) => `
-      <div class="card">
-        <img src="${car.image}" alt="${car.name}">
-        <div class="card__body">
-          <h3>${car.name}</h3>
-          <div class="card__meta">
-            <span class="tag">${car.category}</span>
-            <span class="tag">${car.seats} seats</span>
-            <span class="tag">${car.transmission}</span>
+    el.innerHTML = cars.map((car) => {
+      const meta = carMeta(car);
+      return `
+      <div class="fleet-card">
+        <div class="fleet-card__img"><img src="${car.image}" alt="${car.name}"></div>
+        <div class="fleet-card__body">
+          <div class="fleet-card__top">
+            <div class="fleet-card__name">${car.name}</div>
+            <div class="fleet-card__badge${meta.fleetBadgeWarm ? ' warm' : ''}">${meta.fleetBadge}</div>
           </div>
-          <div class="card__price">$${(car.price_per_day_cents / 100).toFixed(2)} <span>/ day</span></div>
-          <a href="/book.html?car=${car.slug}" class="btn btn-primary btn-block">Book This Car</a>
+          <div class="fleet-card__meta">${meta.bodyType} · Seats ${car.seats} · A/C</div>
+          <div class="fleet-card__footer">
+            <div class="fleet-card__price">$${(car.price_per_day_cents / 100).toFixed(0)}<span>/day</span></div>
+            <a href="/car.html?car=${car.slug}" class="btn-select">Select</a>
+          </div>
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
   } catch (e) {
     el.innerHTML = '<p style="text-align:center;color:var(--coral)">Could not load the fleet right now.</p>';
   }

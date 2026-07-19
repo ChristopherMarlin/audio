@@ -9,18 +9,16 @@
 <link rel="stylesheet" href="/css/style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap">
 <link rel="preconnect" href="https://js.stripe.com">
 <link rel="dns-prefetch" href="https://js.stripe.com">
 <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 
-<header class="site-header">
-  <nav class="nav">
-    <a href="/" class="nav__logo"><img src="/images/logo.svg" alt="Marlin Rentals"></a>
-  </nav>
-</header>
+<nav class="nav">
+  <a href="/" class="nav__logo">Marlin Rentals</a>
+</nav>
 
 <section class="container" style="padding-top:48px; max-width:520px;">
   <h1 class="section-title">Security Deposit Hold</h1>
@@ -29,10 +27,8 @@
   </div>
 </section>
 
-<footer class="site-footer">
-  <div class="container">
-    <div class="footer-bottom">&copy; <span id="year"></span> Marlin Rentals. All rights reserved.</div>
-  </div>
+<footer class="site-footer" style="grid-template-columns:1fr;">
+  <div class="footer-bottom" style="border-top:none;">&copy; <span id="year"></span> Marlin Rentals. All rights reserved.</div>
 </footer>
 
 <script src="/js/footer-year.js"></script>

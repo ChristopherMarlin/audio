@@ -2,7 +2,7 @@
   const carPicker = document.getElementById('car-picker');
   const summaryBox = document.getElementById('summary-box');
   const submitBtn = document.getElementById('submit-btn');
-  const form = document.getElementById('booking-form');
+  const form = document.getElementById('step-form');
   const formAlert = document.getElementById('form-alert');
   const airportCheckbox = document.getElementById('airport_dropoff');
 
@@ -10,7 +10,6 @@
 
   let cars = [];
   let selectedCar = null;
-  let pickerExpanded = true;
   let stripe = null;
   let cardElement = null;
   let currentClientSecret = null;
@@ -31,22 +30,55 @@
 
   function updateSummary() {
     const { start, end } = calendar.getSelection();
-    if (!selectedCar || !start || !end) {
-      summaryBox.innerHTML = `<p style="color:var(--muted);margin:0;">Choose a car and dates to see your price.</p>`;
+
+    if (!selectedCar) {
+      summaryBox.innerHTML = `<p style="color:var(--footer-muted);margin:0;">Choose a car and dates to see your price.</p>`;
       submitBtn.disabled = true;
       submitBtn.textContent = 'Select dates to continue';
       return;
     }
+
+    const meta = carMeta(selectedCar);
+    const carRow = `
+      <div class="summary-sidebar__car">
+        <img src="${selectedCar.image}" alt="${selectedCar.name}">
+        <div>
+          <div class="summary-sidebar__car-name">${selectedCar.name}</div>
+          <div class="summary-sidebar__car-specs">${meta.bodyType} · Seats ${selectedCar.seats}</div>
+        </div>
+      </div>`;
+
+    if (!start || !end) {
+      summaryBox.innerHTML = `
+        ${carRow}
+        <div class="summary-row"><span>Pickup</span><span>Select date</span></div>
+        <div class="summary-row"><span>Return</span><span>Select date</span></div>
+        <div class="summary-row"><span>Nights</span><span>0</span></div>
+      `;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Select dates to continue';
+      return;
+    }
+
     const nights = nightsBetween(start, end);
     const carTotal = nights * selectedCar.price_per_day_cents;
     const airportFee = airportCheckbox.checked ? AIRPORT_FEE_CENTS : 0;
     const total = carTotal + airportFee;
 
     summaryBox.innerHTML = `
-      <div class="summary-row"><span>${selectedCar.name} × ${nights} night${nights === 1 ? '' : 's'}</span><span>${money(carTotal)}</span></div>
-      ${airportCheckbox.checked ? `<div class="summary-row"><span>Airport drop-off</span><span>${money(airportFee)}</span></div>` : ''}
-      <div class="summary-row total"><span>Total</span><span>${money(total)}</span></div>
-      <div class="summary-row" style="color:var(--muted);font-size:0.85rem;"><span>${start} → ${end}</span><span></span></div>
+      ${carRow}
+      <div class="summary-row"><span>Pickup</span><span>${start}</span></div>
+      <div class="summary-row"><span>Return</span><span>${end}</span></div>
+      <div class="summary-row"><span>Nights</span><span>${nights}</span></div>
+      <div style="margin-top:18px;">
+        <div class="summary-price-row"><span>${money(selectedCar.price_per_day_cents)} × ${nights} night${nights === 1 ? '' : 's'}</span><span>${money(carTotal)}</span></div>
+        ${airportCheckbox.checked ? `<div class="summary-price-row"><span>Airport drop-off</span><span>${money(airportFee)}</span></div>` : ''}
+        <div class="summary-price-row"><span>Friendly service</span><span style="color:#8FE3C7">Included</span></div>
+      </div>
+      <div class="summary-total">
+        <span>Total</span>
+        <span>${money(total)}</span>
+      </div>
     `;
     submitBtn.disabled = false;
     submitBtn.textContent = `Pay ${money(total)} & Book`;
@@ -55,44 +87,17 @@
   airportCheckbox.addEventListener('change', updateSummary);
 
   function renderCarPicker() {
-    if (selectedCar && !pickerExpanded) {
-      // Collapsed to just the chosen car, so there's no accidentally
-      // clicking a different one while filling out the form - but
-      // switching (e.g. if these dates aren't free) is still one click away.
-      const c = selectedCar;
-      carPicker.innerHTML = `
-        <div class="car-pick-summary">
-          <img src="${c.image}" alt="${c.name}">
-          <div class="car-pick-summary__body">
-            <h3>${c.name}</h3>
-            <div class="card__meta">
-              <span class="tag">${c.category}</span>
-              <span class="tag">${c.seats} seats</span>
-            </div>
-            <div class="car-pick__price">${money(c.price_per_day_cents)} <span>/ day</span></div>
-          </div>
-          <button type="button" class="btn btn-secondary btn-small" id="change-car-btn">Change car</button>
-        </div>`;
-      document.getElementById('change-car-btn').addEventListener('click', () => {
-        pickerExpanded = true;
-        renderCarPicker();
-      });
-      return;
-    }
-
-    carPicker.innerHTML = cars.map((c) => `
+    carPicker.innerHTML = cars.map((c) => {
+      const meta = carMeta(c);
+      return `
       <div class="car-pick${selectedCar && selectedCar.slug === c.slug ? ' selected' : ''}" data-slug="${c.slug}">
-        <img src="${c.image}" alt="${c.name}">
-        <div class="car-pick__body">
-          <h3>${c.name}</h3>
-          <div class="card__meta">
-            <span class="tag">${c.category}</span>
-            <span class="tag">${c.seats} seats</span>
-          </div>
-          <div class="car-pick__price">${money(c.price_per_day_cents)} <span>/ day</span></div>
-        </div>
+        <div class="car-pick__img"><img src="${c.image}" alt="${c.name}"></div>
+        <div class="car-pick__name">${c.name}</div>
+        <div class="car-pick__specs">${meta.bodyType} · Seats ${c.seats}</div>
+        <div class="car-pick__price">${money(c.price_per_day_cents)}<span>/day</span></div>
       </div>
-    `).join('');
+    `;
+    }).join('');
 
     carPicker.querySelectorAll('.car-pick').forEach((el) => {
       el.addEventListener('click', () => selectCar(el.dataset.slug));
@@ -101,27 +106,16 @@
 
   async function loadCars() {
     cars = await api.get('/api/cars');
+    renderCarPicker();
 
     const params = new URLSearchParams(location.search);
     const preselect = params.get('car');
     const initial = preselect && cars.find((c) => c.slug === preselect);
-    if (initial) {
-      // Arrived via a "Book This Car" link elsewhere on the site - that's
-      // already a deliberate choice, so start collapsed on that car.
-      await selectCar(initial.slug);
-    } else {
-      renderCarPicker();
-    }
+    if (initial) await selectCar(initial.slug);
   }
 
   async function selectCar(slug) {
-    if (selectedCar && selectedCar.slug === slug) {
-      pickerExpanded = false;
-      renderCarPicker();
-      return;
-    }
     selectedCar = cars.find((c) => c.slug === slug) || null;
-    pickerExpanded = !selectedCar;
     renderCarPicker();
     calendar.reset();
     updateSummary();
